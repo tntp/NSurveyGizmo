@@ -124,6 +124,11 @@ namespace NSurveyGizmo
         [Key]
         public int id { get; set; }
         public string scustomfield5 { get; set; }
+
+        public string scustomfield7 { get; set; }
+        public string scustomfield8 { get; set; }
+        public string scustomfield9 { get; set; }
+        public string scustomfield10 { get; set; }
         // there are other properties. we'll add them when we need them.
     }
 
