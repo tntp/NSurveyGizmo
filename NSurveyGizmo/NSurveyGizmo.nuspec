@@ -6,10 +6,11 @@
     <title>$title$</title>
     <authors>$author$</authors>
     <owners>$author$</owners>
+	<projectUrl>https://github.com/tntp/NSurveyGizmo</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>$description$</description>
-    <releaseNotes>This is the first release of the package.</releaseNotes>
-    <copyright>Copyright 2015</copyright>
+    <releaseNotes>This is the second release of the package. We've updated it to use token based authentication.</releaseNotes>
+    <copyright>Copyright 2016</copyright>
     <tags>surveygizmo surveys rest api</tags>
   </metadata>
 </package>
