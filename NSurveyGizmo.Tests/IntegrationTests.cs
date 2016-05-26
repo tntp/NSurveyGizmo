@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace NSurveyGizmo.Tests
@@ -8,13 +10,48 @@ namespace NSurveyGizmo.Tests
     [TestClass]
     public class IntegrationTests
     {
+        private static readonly Regex HtmlRegex = new Regex("<.*?>", RegexOptions.Compiled);
+
+        [TestMethod]
+        public void testquestions()
+        {
+            var creds = File.ReadAllLines(@"C:\tmp\sg_creds.txt");
+            var apiClient = new ApiClient() { ApiToken = creds[0], ApiTokenSecret = creds[1] };
+
+            Func<QuestionOptions[], string> joinOptions = (options) => options != null && options.Length > 0
+                ? "\noptions :\n" + string.Join(",\n\n", options.Select(o => o.title.English)) +
+                  ",\n"
+                : "";
+
+            var questions = apiClient.GetQuestions(2687802).Where(q => q._type == "SurveyQuestion").ToList();
+
+            var gizmoQuestions = questions.Select(q => new 
+            {
+                ID = q.id.ToString(),
+                Question = q.title != null ? q.title.English + joinOptions(q.options) : "",
+                QCode =
+                    q.properties != null && q.properties.question_description != null &&
+                    q.properties.question_description.English != null
+                        ? HtmlRegex.Replace(q.properties.question_description.English, string.Empty)
+                        : "",
+                AnswerFormat = q._subtype ?? ""
+            }).ToList();
+
+
+
+            foreach (var gizmoQuestion in gizmoQuestions)
+            {
+                Trace.WriteLine(gizmoQuestion.QCode);
+            }
+        }
+
         [TestMethod]
         public void Create_And_Delete_Survey_And_Campaign_Json()
         {
             var testStartedAt = DateTime.Now;
 
             var creds = File.ReadAllLines(@"C:\tmp\sg_creds.txt");
-            var apiClient = new ApiClient() { Username = creds[0], Password = creds[1] };
+            var apiClient = new ApiClient() { ApiToken = creds[0], ApiTokenSecret = creds[1] };
 
             // create survey
             var title = "Test Survey " + testStartedAt;
@@ -92,8 +129,10 @@ namespace NSurveyGizmo.Tests
             campaign = apiClient.GetCampaign(surveyId, campaignId);
             Assert.AreEqual(updatedCampaignName, campaign.name);
 
+
             // create contact
-            var contactId = apiClient.CreateContact(surveyId, campaignId, "test@example.com", "John", "Doe", "Test Organization");
+            var datetime = testStartedAt.ToString("yyyyMMddHHmmss");
+            var contactId = apiClient.CreateContact(surveyId, campaignId, "test_" + datetime + "@tntp.org", "John", "Doe", "Test Organization");
             Assert.IsTrue(contactId > 0);
 
             // verify that the contact is in the list of contacts

@@ -13,8 +13,8 @@ namespace NSurveyGizmo
         public IThrottledWebRequest ThrottledWebRequest = new ThrottledWebRequest();
         public int? BatchSize = null;
         public string BaseServiceUrl = "https://restapi.surveygizmo.com/v4/";
-        public string Username { get; set; }
-        public string Password { get; set; }
+        public string ApiToken { get; set; }
+        public string ApiTokenSecret { get; set; }
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
         #region questions
@@ -274,7 +274,7 @@ namespace NSurveyGizmo
         {
             // TODO: use async?
 
-            var fullUrl = BaseServiceUrl + url + (url.Contains("?") ? "&" : "?") + "user:pass=" + Username + ":" + Password;
+            var fullUrl = BaseServiceUrl + url + (url.Contains("?") ? "&" : "?") + "api_token=" + ApiToken + "&api_token_secret=" + ApiTokenSecret;
             var currentUrl = fullUrl;
             var page = 1;
             var totalPages = 1;
