@@ -4,9 +4,9 @@
     <id>$id$</id>
     <version>$version$</version>
     <title>$title$</title>
-    <authors>$author$</authors>
+    <authors>$author$, Bernard Wolff, Robert DeSimone</authors>
     <owners>$author$</owners>
-	<projectUrl>https://github.com/tntp/NSurveyGizmo</projectUrl>
+    <projectUrl>https://github.com/tntp/NSurveyGizmo</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>$description$</description>
     <releaseNotes>This is the second release of the package. We've updated it to use token based authentication.</releaseNotes>
