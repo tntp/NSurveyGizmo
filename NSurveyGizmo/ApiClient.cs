@@ -1,10 +1,11 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using NLog;
+using Polly;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Text;
-using NLog;
-using Polly;
 
 namespace NSurveyGizmo
 {
@@ -156,8 +157,48 @@ namespace NSurveyGizmo
         #endregion
 
         #region contacts
-        // TODO: change this method to take a Contact object
-        //public int CreateContact(int surveyId, int campaignId, Contact contact)
+
+        public int CreateContact(int surveyId, int campaignId, Contact contact)
+        {
+            var url = BuildCreateOrUpdateContactUrl(surveyId, campaignId, contact, true);
+            var results = GetData<Result>(url, nonQuery: true);
+            if (results == null || results.Count < 1 || results[0].result_ok == false) return -1;
+            return results[0].id;
+        }
+
+        public bool UpdateContact(int surveyId, int campaignId, Contact contact)
+        {
+            var url = BuildCreateOrUpdateContactUrl(surveyId, campaignId, contact);
+            var results = GetData<Result>(url, nonQuery: true);
+            return ResultOk(results);
+        }
+
+        private string BuildCreateOrUpdateContactUrl(int surveyId, int campaignId, Contact contact, bool isNewContact = false)
+        {
+            var method       = isNewContact ? "PUT" : "POST";
+            var strContactId = isNewContact ? "" : contact.ID.ToString();
+            var baseUrl      = "survey/" + surveyId + "/surveycampaign/" + campaignId + "/contact/" + strContactId + "?_method=" + method;
+
+            var requiredParams    = new[] { nameof(contact.Email), nameof(contact.FirstName), nameof(contact.LastName), nameof(contact.Organization) };
+            var parameters        = new Dictionary<string, string>();
+            var contactProperties = contact.GetType().GetProperties().Where(pi => pi.Name != nameof(contact.ID)).ToList();
+
+            foreach (var propertyInfo in contactProperties)
+            {
+                var value = propertyInfo.GetValue(contact, null).ToString();
+                if (string.IsNullOrEmpty(value) && !requiredParams.Contains(propertyInfo.Name)) continue;
+
+                var jsonPropertyObj  = propertyInfo.GetCustomAttributes(true).FirstOrDefault(o => o is JsonPropertyAttribute);
+                var jsonPropertyAttr = jsonPropertyObj as JsonPropertyAttribute;
+                var name = jsonPropertyAttr != null ? jsonPropertyAttr.PropertyName : propertyInfo.Name;
+
+                parameters.Add(name, value);
+            }
+
+            return BuildUrl(baseUrl, parameters).ToString();
+        }
+
+        [Obsolete("Use CreateContact(surveyId, campaignId, contact), instead.")]
         public int CreateContact(int surveyId, int campaignId, string emailAddress = null,
             string firstName = null, string lastName = null, string organization = null, params string[] customFields)
         {
@@ -167,8 +208,7 @@ namespace NSurveyGizmo
             return results[0].id;
         }
 
-        // TODO: change this method to take a Contact object
-        //public int UpdateContact(int surveyId, int campaignId, Contact contact)
+        [Obsolete("Use UpdateContact(surveyId, campaignId, contact), instead.")]
         public bool UpdateContact(int surveyId, int campaignId, int contactId, string emailAddress = null,
             string firstName = null, string lastName = null, string organization = null, params string[] customFields)
         {
@@ -178,15 +218,15 @@ namespace NSurveyGizmo
             return ResultOk(results);
         }
 
+        [Obsolete("Use BuildCreateOrUpdateContactUrl(surveyId, campaignId, contact, isNewContact), instead.")]
         private string BuildCreateOrUpdateContactUrl(int surveyId, int campaignId, int? contactId, string emailAddress = null, string firstName = null, string lastName = null, string organization = null, params string[] customFields)
         {
-            var method = contactId == null ? "PUT" : "POST";
-            var strContactId = contactId == null ? "" : contactId.ToString();
+            var method       = contactId == null ? "PUT" : "POST";
+            var strContactId = contactId.HasValue ? contactId.ToString() : "";
+            var baseUrl      = "survey/" + surveyId + "/surveycampaign/" + campaignId + "/contact/" + strContactId + "?_method=" + method;
+            
 
-            var url =
-                BuildUrl(
-                    "survey/" + surveyId + "/surveycampaign/" + campaignId + "/contact/" + strContactId + "?_method=" +
-                    method,
+            var url = BuildUrl(baseUrl,
                     new Dictionary<string, string>()
                     {
                         {"semailaddress", emailAddress},

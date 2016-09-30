@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Newtonsoft.Json;
 
 namespace NSurveyGizmo.Tests
 {
@@ -25,7 +26,7 @@ namespace NSurveyGizmo.Tests
 
             var questions = apiClient.GetQuestions(2687802).Where(q => q._type == "SurveyQuestion").ToList();
 
-            var gizmoQuestions = questions.Select(q => new 
+            var gizmoQuestions = questions.Select(q => new
             {
                 ID = q.id.ToString(),
                 Question = q.title != null ? q.title.English + joinOptions(q.options) : "",
@@ -138,7 +139,7 @@ namespace NSurveyGizmo.Tests
             // verify that the contact is in the list of contacts
             var campaignContactList = apiClient.GetCampaignContactList(surveyId, campaignId);
             Assert.AreEqual(1, campaignContactList.Count);
-            Assert.IsTrue(campaignContactList.Any(c => c.id == contactId));
+            Assert.IsTrue(campaignContactList.Any(c => c.ID == contactId));
 
             // update contact
             var updated = apiClient.UpdateContact(surveyId, campaignId, contactId, null, null, "Smith");
@@ -159,6 +160,35 @@ namespace NSurveyGizmo.Tests
             // delete survey
             var surveyDeleted = apiClient.DeleteSurvey(surveyId);
             Assert.IsTrue(surveyDeleted);
+        }
+
+        [TestMethod]
+        public void CreateContactWithContactObject()
+        {
+            var contact = new Contact
+            {
+                Email         = "u_testUser@tntp.org",
+                FirstName     = "Test",
+                LastName      = "User",
+                Organization  = "Test Org",
+                CustomField01 = "Custom01",
+                CustomField02 = "Custom02",
+                CustomField03 = "Custom03",
+                CustomField04 = "Custom04",
+                CustomField05 = "Custom05",
+                CustomField06 = "Custom06",
+                CustomField07 = "Custom07",
+                CustomField08 = "Custom08",
+                CustomField09 = "Custom09",
+                CustomField10 = "Custom10",
+            };
+
+            var serializedObj   = JsonConvert.SerializeObject(contact);
+            var deserializedObj = JsonConvert.DeserializeObject<Contact>(serializedObj);
+
+            Assert.AreEqual(contact, deserializedObj);
+            //var contactId = new ApiClient().CreateContact(1, 2, contact);
+            //Assert.AreNotEqual(contactId, -1);
         }
     }
 }
