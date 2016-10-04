@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
 using System.Text.RegularExpressions;
 using Newtonsoft.Json;
 // ReSharper disable InconsistentNaming
@@ -122,54 +121,14 @@ namespace NSurveyGizmo
 
     public class Contact
     {
-        // Reference: https://apihelp.surveygizmo.com/help/contact-sub-object
-
         [Key]
-        [JsonProperty("id")]
-        public int ID { get; set; }
+        public int id { get; set; }
+        public string scustomfield5 { get; set; }
 
-        [JsonProperty("semailaddress")]
-        public string Email { get; set; }
-
-        [JsonProperty("sfirstname")]
-        public string FirstName { get; set; }
-
-        [JsonProperty("slastname")]
-        public string LastName { get; set; }
-
-        [JsonProperty("sorganization")]
-        public string Organization { get; set; }
-
-        [JsonProperty("scustomfield1")]
-        public string CustomField01 { get; set; }
-
-        [JsonProperty("scustomfield2")]
-        public string CustomField02 { get; set; }
-
-        [JsonProperty("scustomfield3")]
-        public string CustomField03 { get; set; }
-
-        [JsonProperty("scustomfield4")]
-        public string CustomField04 { get; set; }
-
-        [JsonProperty("scustomfield5")]
-        public string CustomField05 { get; set; }
-
-        [JsonProperty("scustomfield6")]
-        public string CustomField06 { get; set; }
-
-        [JsonProperty("scustomfield7")]
-        public string CustomField07 { get; set; }
-
-        [JsonProperty("scustomfield8")]
-        public string CustomField08 { get; set; }
-
-        [JsonProperty("scustomfield9")]
-        public string CustomField09 { get; set; }
-
-        [JsonProperty("scustomfield10")]
-        public string CustomField10 { get; set; }
-
+        public string scustomfield7 { get; set; }
+        public string scustomfield8 { get; set; }
+        public string scustomfield9 { get; set; }
+        public string scustomfield10 { get; set; }
         // there are other properties. we'll add them when we need them.
     }
 
