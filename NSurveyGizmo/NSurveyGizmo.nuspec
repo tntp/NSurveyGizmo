@@ -9,7 +9,7 @@
     <projectUrl>https://github.com/tntp/NSurveyGizmo</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>$description$</description>
-    <releaseNotes>This is the second release of the package. We've updated it to use token based authentication.</releaseNotes>
+    <releaseNotes>Updated dependencies (Polly, NLog, Json.NET)</releaseNotes>
     <copyright>Copyright 2016</copyright>
     <tags>surveygizmo surveys rest api</tags>
   </metadata>
