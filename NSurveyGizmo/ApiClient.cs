@@ -118,7 +118,16 @@ namespace NSurveyGizmo
 
             return ResultOk(results);
         }
+        public bool UpdateQcodeOfSurveyQuestion(int surveyId, int questionId, string qCode)
+        {
+            qCode = $"<span style=\"font-size:0px;\">{qCode}</span>";
 
+            var url = new StringBuilder("survey/" + surveyId + "/surveyquestion/" + questionId + "?_method=POST&properties[question_description][English]=" + Uri.EscapeUriString(qCode));
+            
+            var results = GetData<Result>(url.ToString(), nonQuery: true);
+
+            return ResultOk(results);
+        }
         #endregion
 
         #region email messages
