@@ -129,6 +129,8 @@ namespace NSurveyGizmo
         public string scustomfield8 { get; set; }
         public string scustomfield9 { get; set; }
         public string scustomfield10 { get; set; }
+
+        public string estatus { get; set; }
         // there are other properties. we'll add them when we need them.
     }
 
