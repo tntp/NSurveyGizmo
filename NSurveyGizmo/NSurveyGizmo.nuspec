@@ -9,7 +9,7 @@
     <projectUrl>https://github.com/tntp/NSurveyGizmo</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>$description$</description>
-    <releaseNotes>Updated dependencies (Polly, NLog, Json.NET)</releaseNotes>
+    <releaseNotes>Added varname to SurveyQuestion object</releaseNotes>
     <copyright>Copyright 2017</copyright>
     <tags>surveygizmo surveys rest api</tags>
   </metadata>

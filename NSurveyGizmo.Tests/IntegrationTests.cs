@@ -25,16 +25,23 @@ namespace NSurveyGizmo.Tests
 
             var questions = apiClient.GetQuestions(2687802).Where(q => q._type == "SurveyQuestion").ToList();
 
-            var gizmoQuestions = questions.Select(q => new 
+            var gizmoQuestions = questions.Select(q =>
             {
-                ID = q.id.ToString(),
-                Question = q.title != null ? q.title.English + joinOptions(q.options) : "",
-                QCode =
-                    q.properties != null && q.properties.question_description != null &&
-                    q.properties.question_description.English != null
+                var qCode = q.varname.Trim();
+                if (string.IsNullOrEmpty(qCode))
+                {
+                    qCode = q.properties?.question_description?.English != null
                         ? HtmlRegex.Replace(q.properties.question_description.English, string.Empty)
-                        : "",
-                AnswerFormat = q._subtype ?? ""
+                        : "";
+                }
+
+                return new
+                {
+                    ID = q.id.ToString(),
+                    Question = q.title != null ? q.title.English + joinOptions(q.options) : "",
+                    QCode = qCode,
+                    AnswerFormat = q._subtype ?? ""
+                };
             }).ToList();
 
 

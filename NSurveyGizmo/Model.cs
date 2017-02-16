@@ -148,6 +148,7 @@ namespace NSurveyGizmo
         public LocalizableString title { get; set; }
         public string _subtype { get; set; }
         public string _type { get; set; }
+        public string varname { get; set; }
         public string QuestionResponse { get; set; }
         public QuestionProperties properties { get; set; }
         public QuestionOptions[] options { get; set; }
