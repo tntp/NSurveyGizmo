@@ -123,7 +123,7 @@ namespace NSurveyGizmo
             qCode = $"<span style=\"font-size:0px;\">{qCode}</span>";
 
             var url = new StringBuilder("survey/" + surveyId + "/surveyquestion/" + questionId + "?_method=POST&properties[question_description][English]=" + Uri.EscapeUriString(qCode));
-            
+
             var results = GetData<Result>(url.ToString(), nonQuery: true);
 
             return ResultOk(results);
@@ -282,16 +282,10 @@ namespace NSurveyGizmo
         private List<T> GetData<T>(string url, bool getAllPages = false, bool paged = false, bool nonQuery = false)
         {
             // TODO: use async?
-
-            var fullUrl = BaseServiceUrl + url + (url.Contains("?") ? "&" : "?") + "api_token=" + ApiToken + "&api_token_secret=" + ApiTokenSecret;
-            var currentUrl = fullUrl;
-            var page = 1;
-            var totalPages = 1;
-
-            if (paged && BatchSize != null && BatchSize > 0)
-            {
-                fullUrl += "&resultsperpage=" + BatchSize;
-            }
+            var data = new List<T>();
+            var delimiter = url.Contains("?") ? "&" : "?";
+            var baseUrl = $"{BaseServiceUrl}{url}{delimiter}api_token={ApiToken}&api_token_secret={ApiTokenSecret}";
+            var currentUrl = baseUrl;
 
             var policy = Policy
                 .Handle<WebException>()
@@ -310,48 +304,63 @@ namespace NSurveyGizmo
                     }
                 });
 
-            var data = new List<T>();
-
-            policy.Execute(() =>
+            if (!paged)
             {
-                if (!paged)
+                policy.Execute(() =>
                 {
                     if (nonQuery)
                     {
-                        var result1 = ThrottledWebRequest.GetJsonObject<T>(fullUrl);
-                        data.Add(result1);
-                        return;
+                        var nonQueryResult = ThrottledWebRequest.GetJsonObject<T>(baseUrl);
+                        data.Add(nonQueryResult);
                     }
+                    else
+                    {
+                        var queryResult = ThrottledWebRequest.GetJsonObject<Result<T>>(baseUrl);
+                        data.Add(queryResult.Data);
+                    }
+                });
+            }
+            else
+            {
+                if (BatchSize != null && BatchSize > 0) baseUrl += $"&resultsperpage={BatchSize}";
 
-                    var result = ThrottledWebRequest.GetJsonObject<Result<T>>(fullUrl);
-                    data.Add(result.Data);
-                    return;
-                }
+                var page = 1;
+                var totalPages = 1;
+                var endLoop = false;
 
-                for (; page <= totalPages && totalPages != 0; page++)
+                do
                 {
-                    var pagedUrl = fullUrl + "&page=" + page;
-                    currentUrl = pagedUrl;
+                    // TODO: Conditionally add info messages for 25%, 50%, 75% paging?
 
-                    var result = ThrottledWebRequest.GetJsonObject<PagedResult<T>>(pagedUrl);
-
-                    if (!result.result_ok)
+                    policy.Execute(() =>
                     {
-                        break;
-                    }
+                        var pagedUrl = $"{baseUrl}&page={page}";
+                        currentUrl = pagedUrl;
 
-                    if (getAllPages)
-                    {
-                        totalPages = result.total_pages;
-                    }
+                        var result = ThrottledWebRequest.GetJsonObject<PagedResult<T>>(pagedUrl);
 
-                    if (result.Data != null)
-                    {
+                        if (!result.result_ok || result.Data == null)
+                        {
+                            endLoop = true;
+                            var errMsg = !result.result_ok ? "'result_ok' is not true" : "'Data' is null";
+                            var scrubbedUrl = pagedUrl
+                                .Replace(ApiToken, "[scrubbed]")
+                                .Replace(ApiTokenSecret, "[scrubbed]");
+                            Logger.Log(LogLevel.Warn, $"Unexpected result returned from Survey Gizmo! {errMsg}.\r\nUrl: {scrubbedUrl}\r\n{Environment.StackTrace}");
+                            
+                            return;
+                        }
+
+                        // Total pages returned on first call
+                        if (getAllPages && result.total_pages > 0) totalPages = result.total_pages;
+
                         data.AddRange(result.Data.Where(d => d != null));
-                    }
-                }
-            });
+                        page++;
+                    });
+                } while (page <= totalPages && !endLoop);
 
+                if (page > 1 && page - 1 != totalPages) Logger.Log(LogLevel.Warn, $"Only {page - 1}/{totalPages} pages retrieved!\tUrl: {BaseServiceUrl}{url}");
+            }
             return data;
         }
 
