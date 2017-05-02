@@ -282,6 +282,9 @@ namespace NSurveyGizmo
         private List<T> GetData<T>(string url, bool getAllPages = false, bool paged = false, bool nonQuery = false)
         {
             // TODO: use async?
+            const int totalRetries = 10;
+            const string placeholder = "[removed]";
+
             var data = new List<T>();
             var delimiter = url.Contains("?") ? "&" : "?";
             var baseUrl = $"{BaseServiceUrl}{url}{delimiter}api_token={ApiToken}&api_token_secret={ApiTokenSecret}";
@@ -289,19 +292,16 @@ namespace NSurveyGizmo
 
             var policy = Policy
                 .Handle<WebException>()
-                .Retry(10, (ex, i) =>
+                .Retry(totalRetries, (ex, i) =>
                 {
                     var exception = ex as WebException;
                     if (exception != null)
                     {
                         SetNLogContextItems(exception, currentUrl);
-                        Logger.Log(LogLevel.Error, exception, exception.Message);
+                        Logger.Log(LogLevel.Error, exception, $"{nameof(WebException)} caught. Retrying {i}/{totalRetries}.");
                     }
 
-                    if (i > 10)
-                    {
-                        throw new Exception(ex.Message, ex);
-                    }
+                    if (i > 10) throw new Exception($"Total retries exceeded: {totalRetries}", ex);
                 });
 
             if (!paged)
@@ -322,16 +322,13 @@ namespace NSurveyGizmo
             }
             else
             {
-                if (BatchSize != null && BatchSize > 0) baseUrl += $"&resultsperpage={BatchSize}";
-
                 var page = 1;
                 var totalPages = 1;
-                var endLoop = false;
+                if (BatchSize != null && BatchSize > 0) baseUrl += $"&resultsperpage={BatchSize}";
 
                 do
                 {
                     // TODO: Conditionally add info messages for 25%, 50%, 75% paging?
-
                     policy.Execute(() =>
                     {
                         var pagedUrl = $"{baseUrl}&page={page}";
@@ -341,14 +338,16 @@ namespace NSurveyGizmo
 
                         if (!result.result_ok || result.Data == null)
                         {
-                            endLoop = true;
-                            var errMsg = !result.result_ok ? "'result_ok' is not true" : "'Data' is null";
+                            var exMsg = !result.result_ok
+                                ? "SurveyGizmo responded with 'result_ok' equal to false, indicating a problem with their system"
+                                : "Empty response received from SurveyGizmo";
+                            var ex = new WebException(exMsg, WebExceptionStatus.UnknownError);
                             var scrubbedUrl = pagedUrl
-                                .Replace(ApiToken, "[scrubbed]")
-                                .Replace(ApiTokenSecret, "[scrubbed]");
-                            Logger.Log(LogLevel.Warn, $"Unexpected result returned from Survey Gizmo! {errMsg}.\r\nUrl: {scrubbedUrl}\r\n{Environment.StackTrace}");
-                            
-                            return;
+                                .Replace(ApiToken, placeholder)
+                                .Replace(ApiTokenSecret, placeholder);
+                            ex.Data.Add("Url", scrubbedUrl);
+
+                            throw ex;
                         }
 
                         // Total pages returned on first call
@@ -357,7 +356,7 @@ namespace NSurveyGizmo
                         data.AddRange(result.Data.Where(d => d != null));
                         page++;
                     });
-                } while (page <= totalPages && !endLoop);
+                } while (page <= totalPages);
 
                 if (page > 1 && page - 1 != totalPages) Logger.Log(LogLevel.Warn, $"Only {page - 1}/{totalPages} pages retrieved!\tUrl: {BaseServiceUrl}{url}");
             }
