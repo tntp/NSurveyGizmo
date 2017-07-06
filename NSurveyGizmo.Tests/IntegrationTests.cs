@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NSurveyGizmo;
+using System;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -13,7 +14,7 @@ namespace NSurveyGizmo.Tests
         private static readonly Regex HtmlRegex = new Regex("<.*?>", RegexOptions.Compiled);
 
         [TestMethod]
-        public void testquestions()
+        public void TestQuestions()
         {
             var creds = File.ReadAllLines(@"C:\tmp\sg_creds.txt");
             var apiClient = new ApiClient() { ApiToken = creds[0], ApiTokenSecret = creds[1] };
@@ -25,7 +26,7 @@ namespace NSurveyGizmo.Tests
 
             var questions = apiClient.GetQuestions(2687802).Where(q => q._type == "SurveyQuestion").ToList();
 
-            var gizmoQuestions = questions.Select(q => new 
+            var gizmoQuestions = questions.Select(q => new
             {
                 ID = q.id.ToString(),
                 Question = q.title != null ? q.title.English + joinOptions(q.options) : "",
@@ -159,6 +160,38 @@ namespace NSurveyGizmo.Tests
             // delete survey
             var surveyDeleted = apiClient.DeleteSurvey(surveyId);
             Assert.IsTrue(surveyDeleted);
+        }
+
+        [TestMethod()]
+        public void GetQuestionsGet_Questions_Test()
+        {
+            var testStartedAt = DateTime.Now;
+            var creds = File.ReadAllLines(@"C:\tmp\sg_creds.txt");
+            var apiClient = new ApiClient() { ApiToken = creds[0], ApiTokenSecret = creds[1] };
+
+            // create survey
+            var title = "Test Survey " + testStartedAt;
+            var surveyId = apiClient.CreateSurvey(title);
+            Assert.IsTrue(surveyId > 0);
+
+            // get survey
+            var survey = apiClient.GetSurvey(surveyId);
+            Assert.IsNotNull(survey);
+            Assert.AreEqual(surveyId, survey.id);
+            Assert.AreEqual(title, survey.title);
+            Assert.AreEqual("Launched", survey.status);
+
+            // create questions
+            var t1 = "Test survey question" + testStartedAt;
+            var t2 = "Test survey question2" + testStartedAt;
+            var q1 = apiClient.CreateQuestion(surveyId, 1, "checkbox", t1, null, null);
+            var q2 = apiClient.CreateQuestion(surveyId, 1, "essay", t2, null, null);
+
+            // get questions
+            var questions = apiClient.GetQuestions(surveyId);
+            Assert.IsNotNull(questions);
+            Assert.IsTrue(questions.Any(i => i.id == q1.id));
+            Assert.IsTrue(questions.Any(i => i.id == q2.id));
         }
     }
 }

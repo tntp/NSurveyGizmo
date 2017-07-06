@@ -23,7 +23,43 @@ namespace NSurveyGizmo
         {
             return GetData<SurveyQuestion>("survey/" + surveyId + "/surveyquestion", getAllPages, true);
         }
+        public SurveyQuestion CreateQuestion(int surveyId, int surveyPage, string type, string title, bool? required, List<string> subTypeProps)
+        {
+            StringBuilder url = new StringBuilder("survey/" + surveyId + "/surveypage/" + surveyPage + "/surveyquestion?_method=PUT");
 
+            if (!String.IsNullOrEmpty(type))
+            {
+                url.Append("&type=" + Uri.EscapeDataString(type));
+            }
+            if (!String.IsNullOrEmpty(title))
+            {
+                url.Append("&title=" + Uri.EscapeDataString(title));
+            }
+            if (required != null)
+            {
+                url.Append("&properties[required]=" + required);
+            }
+            if (subTypeProps != null && subTypeProps.Count > 0)
+            {
+                var counter = 1;
+                url.Append("&properties[subtype]=");
+                foreach (var prop in subTypeProps)
+                {
+                    if (counter == 1)
+                    {
+                        url.Append(Uri.EscapeDataString(prop));
+                    }
+                    else
+                    {
+                        url.Append("," + Uri.EscapeDataString(prop));
+                    }
+                    counter = counter + 1;
+                }
+            }
+
+            var response = GetData<SurveyQuestion>(url.ToString());
+            return response[0];
+        }
         #endregion
 
         #region responses
