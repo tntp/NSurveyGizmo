@@ -23,6 +23,7 @@ namespace NSurveyGizmo
     public class Result<T>
     {
         public bool result_ok { get; set; }
+        public int? id { get; set; }
         public T Data { get; set; }
     }
 
@@ -41,7 +42,7 @@ namespace NSurveyGizmo
     {
         public string id { get; set; }
         public string contact_id { get; set; }
-        public string status { get; set; }
+        public SurveyStatus status { get; set; }
         public string is_test_data { get; set; }
         public DateTime datesubmitted { get; set; }
         public string sResponseComment { get; set; }
@@ -67,6 +68,17 @@ namespace NSurveyGizmo
         }
     }
 
+    public class LocalizableString
+    {
+        public string English { get; set; }
+    }
+    public enum SurveyStatus
+    {
+        Complete,
+        Incomplete,
+        Partial,
+        Disqualified
+    }
     public class Survey
     {
         [Key]
@@ -123,15 +135,25 @@ namespace NSurveyGizmo
     {
         [Key]
         public int id { get; set; }
-        public string scustomfield5 { get; set; }
-
-        public string scustomfield7 { get; set; }
-        public string scustomfield8 { get; set; }
-        public string scustomfield9 { get; set; }
-        public string scustomfield10 { get; set; }
-
-        public string estatus { get; set; }
-        // there are other properties. we'll add them when we need them.
+        public string emailAddress { get; set; }
+        public string firstName { get; set; }
+        public string lastName { get; set; }
+        public string organization { get; set; }
+        public string division { get; set; }
+        public string team { get; set; }
+        public string group { get; set; }
+        public string role { get; set; }
+        public string homephone { get; set; }
+        public string faxphone { get; set; }
+        public string businessphone { get; set; }
+        public string mailingaddress { get; set; }
+        public string customfield5 { get; set; }
+        public string customfield7 { get; set; }
+        public string customfield8 { get; set; }
+        public string customfield9 { get; set; }
+        public string customfield10 { get; set; }
+        public string status { get; set; }
+       public Dictionary<string, string> customFields { get; set; }
     }
 
     public class Links
@@ -144,11 +166,14 @@ namespace NSurveyGizmo
     {
         [Key]
         public int id { get; set; }
-
         public LocalizableString title { get; set; }
-        public string _subtype { get; set; }
-        public string _type { get; set; }
-        public string QuestionResponse { get; set; }
+        public string subtype { get; set; }
+        public int surveyId { get; set; }
+        public int pageNumber{ get; set; }
+        public string type { get; set; }
+        public string[] description { get; set; }
+        public bool? required { get; set; }
+        public string questionResponse { get; set; }
         public QuestionProperties properties { get; set; }
         public QuestionOptions[] options { get; set; }
     }
@@ -167,11 +192,6 @@ namespace NSurveyGizmo
         [Key]
         public int id { get; set; }
         public LocalizableString title { get; set; }
-    }
-
-    public class LocalizableString
-    {
-        public string English { get; set; }
     }
 
     public class SurveyUrl
@@ -221,7 +241,12 @@ namespace NSurveyGizmo
     {
         [Key]
         public int OptionID { get; set; }
-
+        public int SurveyId { get; set; }
+        public int QuestionId{ get; set; }
+        public LocalizableString Title { get; set; }
+        public int? orderAfterNumber { get; set; }
+        public int pageNumber { get; set; }
+        public string Value { get; set; }
         public int QuestionID { get; set; }
         public string QuestionResponse { get; set; }
     }
@@ -346,10 +371,10 @@ namespace NSurveyGizmo
                     var index = int.Parse(name.Substring(10, name.IndexOf(')') - 10));
                     var sq = new SurveyQuestion();
                     sq.id = index;
-                    sq.QuestionResponse = serializer.Deserialize<string>(reader);
+                    sq.questionResponse = serializer.Deserialize<string>(reader);
 
                     value.SurveyQuestions.Add(sq);
-                    value.AddQuestion(sq.id, sq.QuestionResponse);
+                    value.AddQuestion(sq.id, sq.questionResponse);
                 }
                 else if (matchUrl.Success)
                 {
