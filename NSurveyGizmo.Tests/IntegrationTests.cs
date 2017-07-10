@@ -281,12 +281,13 @@ namespace NSurveyGizmo.Tests
             fakeContact.lastName = "Doe";
             fakeContact.organization = "Test Organization";
             var contactId = apiClient.CreateContact(surveyId, campaign, fakeContact);
-            Assert.AreEqual(contactId, apiClient.GetContact(surveyId, campaign, Convert.ToInt32(contactId)).id);
+            Assert.AreEqual(contactId, apiClient.GetContact(surveyId, campaign, contactId).id);
 
             // update survey contact
             fakeContact.lastName = "Smith";
-            apiClient.UpdateContact(surveyId, campaign, Convert.ToInt32(contactId), fakeContact);
-            var updatedContact = apiClient.GetContact(surveyId, campaign, Convert.ToInt32(contactId));
+            var updateSuccess = apiClient.UpdateContact(surveyId, campaign, Convert.ToInt32(contactId), fakeContact);
+            var updatedContact = apiClient.GetContact(surveyId, campaign, contactId);
+            Assert.IsTrue(updateSuccess);
             Assert.AreEqual(updatedContact.lastName, fakeContact.lastName);
         }
 

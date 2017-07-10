@@ -319,14 +319,14 @@ namespace NSurveyGizmo
         {
             var url =
                 new StringBuilder($"survey/{surveyId}/surveycampaign/{campaignId}/contact/{contactId}");
-            var response = GetData<Contact>(url.ToString());
+            var response = GetData<Contact>(url.ToString(), nonQuery:true);
             return response[0];
         }
         public int CreateContact(int surveyId, int campaignId, Contact contact)
         {
             var url = BuildCreateOrUpdateContactUrl(surveyId, campaignId, null, contact);
             var results = GetData<Result>(url, nonQuery:true);
-            if (results == null || results.Count < 1 || results[0] == null || results[0].result_ok == false) return -1;
+            if (results == null || results.Count < 1 || results[0] == null) return -1;
             return results[0].id;
         }
         public bool UpdateContact(int surveyId, int campaignId, int contactId, Contact contact)
