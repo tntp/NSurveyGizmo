@@ -24,7 +24,7 @@ namespace NSurveyGizmo.Tests
                   ",\n"
                 : "";
 
-            var questions = apiClient.GetQuestions(2687802).Where(q => q.type == "SurveyQuestion").ToList();
+            var questions = apiClient.GetQuestions(2687802).Where(q => q._type == "SurveyQuestion").ToList();
 
             var gizmoQuestions = questions.Select(q => new
             {
@@ -34,7 +34,7 @@ namespace NSurveyGizmo.Tests
                     q.properties?.question_description != null
                         ? HtmlRegex.Replace(q.properties.question_description.English, string.Empty)
                         : "",
-                AnswerFormat = q.subtype ?? ""
+                AnswerFormat = q._type ?? ""
             }).ToList();
 
 
