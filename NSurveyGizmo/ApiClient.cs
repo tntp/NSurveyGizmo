@@ -322,7 +322,7 @@ namespace NSurveyGizmo
             var response = GetData<Contact>(url.ToString());
             return response[0];
         }
-        public long CreateContact(int surveyId, int campaignId, Contact contact)
+        public int CreateContact(int surveyId, int campaignId, Contact contact)
         {
             var url = BuildCreateOrUpdateContactUrl(surveyId, campaignId, null, contact);
             var results = GetData<Result>(url, nonQuery:true);
