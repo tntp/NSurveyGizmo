@@ -53,7 +53,17 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ApiClient.cs" />
-    <Compile Include="Model.cs" />
+    <Compile Include="Models\Contact.cs" />
+    <Compile Include="Models\DataItemConverter.cs" />
+    <Compile Include="Models\EmailMessage.cs" />
+    <Compile Include="Models\LocalizableString.cs" />
+    <Compile Include="Models\Result.cs" />
+    <Compile Include="Models\Survey.cs" />
+    <Compile Include="Models\SurveyCampaign.cs" />
+    <Compile Include="Models\SurveyQuestion.cs" />
+    <Compile Include="Models\SurveyQuestionMulti.cs" />
+    <Compile Include="Models\SurveyQuestionOption.cs" />
+    <Compile Include="Models\SurveyResponse.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ThrottledWebRequest.cs" />
   </ItemGroup>

@@ -5,6 +5,7 @@ using System.Net;
 using System.Text;
 using NLog;
 using Polly;
+using NSurveyGizmo.Models;
 
 namespace NSurveyGizmo
 {
