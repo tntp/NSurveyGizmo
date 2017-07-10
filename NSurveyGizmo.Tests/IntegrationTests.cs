@@ -139,7 +139,7 @@ namespace NSurveyGizmo.Tests
             fakeContact.organization = "Test Organization";
             var contactId = apiClient.CreateContact(surveyId, campaignId, fakeContact);
             Assert.IsTrue(contactId > 0);
-
+           
             // verify that the contact is in the list of contacts
             var campaignContactList = apiClient.GetCampaignContactList(surveyId, campaignId);
             Assert.AreEqual(1, campaignContactList.Count);
@@ -147,11 +147,11 @@ namespace NSurveyGizmo.Tests
 
             // update contact
             fakeContact.lastName = "Smith";
-            var updated = apiClient.UpdateContact(surveyId, campaignId, contactId, fakeContact);
+            var updated = apiClient.UpdateContact(surveyId, campaignId, Convert.ToInt32(contactId), fakeContact);
             Assert.IsTrue(updated);
 
             // delete contact
-            var deleted = apiClient.DeleteContact(surveyId, campaignId, contactId);
+            var deleted = apiClient.DeleteContact(surveyId, campaignId, Convert.ToInt32(contactId));
             Assert.IsTrue(deleted);
 
             // delete master campaign
@@ -249,7 +249,7 @@ namespace NSurveyGizmo.Tests
             fakeContact.lastName = "Doe";
             fakeContact.organization = "Test Organization";
             var contactId = apiClient.CreateContact(surveyId, campaign, fakeContact);
-            Assert.AreEqual(contactId, apiClient.GetContact(surveyId, campaign, contactId).id);
+            Assert.AreEqual(contactId, apiClient.GetContact(surveyId, campaign, Convert.ToInt32(contactId)).id);
         }
         [TestMethod()]
         public void Update_Contacts_Test()
@@ -281,12 +281,12 @@ namespace NSurveyGizmo.Tests
             fakeContact.lastName = "Doe";
             fakeContact.organization = "Test Organization";
             var contactId = apiClient.CreateContact(surveyId, campaign, fakeContact);
-            Assert.AreEqual(contactId, apiClient.GetContact(surveyId, campaign, contactId).id);
+            Assert.AreEqual(contactId, apiClient.GetContact(surveyId, campaign, Convert.ToInt32(contactId)).id);
 
             // update survey contact
             fakeContact.lastName = "Smith";
-            apiClient.UpdateContact(surveyId, campaign, contactId, fakeContact);
-            var updatedContact = apiClient.GetContact(surveyId, campaign, contactId);
+            apiClient.UpdateContact(surveyId, campaign, Convert.ToInt32(contactId), fakeContact);
+            var updatedContact = apiClient.GetContact(surveyId, campaign, Convert.ToInt32(contactId));
             Assert.AreEqual(updatedContact.lastName, fakeContact.lastName);
         }
 

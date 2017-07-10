@@ -322,11 +322,11 @@ namespace NSurveyGizmo
             var response = GetData<Contact>(url.ToString());
             return response[0];
         }
-        public int CreateContact(int surveyId, int campaignId, Contact contact)
+        public long CreateContact(int surveyId, int campaignId, Contact contact)
         {
             var url = BuildCreateOrUpdateContactUrl(surveyId, campaignId, null, contact);
-            var results = GetData<Result>(url);
-            if (results == null || results.Count < 1 || results[0] != null && results[0].result_ok == false) return -1;
+            var results = GetData<Result>(url, nonQuery:true);
+            if (results == null || results.Count < 1 || results[0] == null || results[0].result_ok == false) return -1;
             return results[0].id;
         }
         public bool UpdateContact(int surveyId, int campaignId, int contactId, Contact contact)
@@ -477,11 +477,11 @@ namespace NSurveyGizmo
                     else
                     {
                         var queryResult = ThrottledWebRequest.GetJsonObject<Result<T>>(baseUrl);
-                        if (queryResult.result_ok && queryResult.Data == null)
+                        if (queryResult.Data != null)
                         {
-                            data.Add();
+                            data.Add(queryResult.Data);
                         }
-                        data.Add(queryResult.Data);
+                        
                     }
                 });
             }
@@ -527,6 +527,7 @@ namespace NSurveyGizmo
             }
             return data;
         }
+      
 
         private static int? GetStatusCode(WebException webException)
         {

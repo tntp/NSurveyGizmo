@@ -26,7 +26,7 @@ namespace NSurveyGizmo
         public int? id { get; set; }
         public T Data { get; set; }
     }
-
+    
     public class Result
     {
         public int id { get; set; }
