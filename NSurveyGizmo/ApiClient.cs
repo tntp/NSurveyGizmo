@@ -323,7 +323,7 @@ namespace NSurveyGizmo
         {
             var url =
                 new StringBuilder($"survey/{surveyId}/surveycampaign/{campaignId}/contact/{contactId}");
-            var response = GetData<Contact>(url.ToString(), nonQuery:true);
+            var response = GetData<Contact>(url.ToString());
             return response[0];
         }
         public int CreateContact(int surveyId, int campaignId, string emailAddress = null,
@@ -366,10 +366,10 @@ namespace NSurveyGizmo
                     $"survey/{surveyId}/surveycampaign/{campaignId}/contact/{strContactId}?_method={method}",
                     new Dictionary<string, string>()
                     {
-                        {"semailaddress", contact.emailAddress},
-                        {"sfirstname", contact.firstName},
-                        {"slastname", contact.lastName},
-                        {"sorganization", contact.organization}
+                        {"semailaddress", contact.semailaddress},
+                        {"sfirstname", contact.sfirstname},
+                        {"slastname", contact.slastname},
+                        {"sorganization", contact.sorganization}
                     });
             for (var i = 0; i < customFields.Length; i++)
             {
@@ -436,12 +436,12 @@ namespace NSurveyGizmo
         {
             var url =
                 BuildUrl(
-                    $"contactlist/{contactListId}?_method=POST&semailaddress={Uri.EscapeDataString(contact.emailAddress)}",
+                    $"contactlist/{contactListId}?_method=POST&semailaddress={Uri.EscapeDataString(contact.semailaddress)}",
                     new Dictionary<string, string>()
                     {
-                        {"sfirstname", contact.firstName},
-                        {"slastname", contact.lastName},
-                        {"sorganization", contact.organization}
+                        {"sfirstname", contact.sfirstname},
+                        {"slastname", contact.slastname},
+                        {"sorganization", contact.sorganization}
                     });
             for (var i = 0; i < customFields.Length; i++)
             {
