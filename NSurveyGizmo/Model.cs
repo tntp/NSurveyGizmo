@@ -248,6 +248,14 @@ namespace NSurveyGizmo
         public string value { get; set; }
 
     }
+    public class SurveyResponseQuestionData
+    {
+        public int? questionId { get; set; }
+        public string questionShortName { get; set; }
+        public int? qestionOptionIdentifier { get; set; }
+        public string value { get; set; }
+        public bool isResonseAComment { get; set; }
+    }
 
     public class SurveyQuestionMulti
     {

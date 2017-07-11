@@ -338,6 +338,8 @@ namespace NSurveyGizmo.Tests
             var contactId = apiClient.CreateContact(surveyId, campaign, fakeContact);
             var getContact = apiClient.GetContact(surveyId, campaign, contactId);
             Assert.AreEqual(contactId, getContact.id);
+
+            // create survey contactList
         }
         [TestMethod()]
         public void Update_Contacts_Test()
@@ -466,6 +468,8 @@ namespace NSurveyGizmo.Tests
                 var getQuestionOp = apiClient.GetQuestionOption(surveyId, q2.id, op.id);
                 Assert.AreEqual(op.id, getQuestionOp.id);
             }
+            // get question options
+            //apiClient.GetQuestionOptions()
 
             //create survey campaign
             var campaign = apiClient.CreateCampaign(surveyId, "testCampaign");
@@ -481,27 +485,68 @@ namespace NSurveyGizmo.Tests
             Assert.AreEqual(contactId, apiClient.GetContact(surveyId, campaign, contactId).id);
 
             // create survey Responses
-            var r1 = apiClient.CreateSurveyResponse(surveyId, "Complete", q1.id, q1.shortName, null, "Here is my response1",
-                false);
-            var r2 = apiClient.CreateSurveyResponse(surveyId, "Complete", q1.id, null, null, "Here is my response2",
-                false);
-            var r3 = apiClient.CreateSurveyResponse(surveyId, "Complete", null, q1.shortName, null, "Here is my response3",
-                false);
-            var r4 = apiClient.CreateSurveyResponse(surveyId, "Complete", q2.id, q2.shortName, surveyQuestionOptions[0].id, surveyQuestionOptions[0].value, false);
-            var r5 = apiClient.CreateSurveyResponse(surveyId, "Complete", null, q2.shortName, surveyQuestionOptions[1].id, surveyQuestionOptions[1].value, false);
-            var r6 = apiClient.CreateSurveyResponse(surveyId, "Complete", q2.id, null, surveyQuestionOptions[2].id, surveyQuestionOptions[2].value, false);
+            var r1 = new SurveyResponseQuestionData()
+            {
+                questionId = q1.id,
+                questionShortName = q1.shortName,
+                qestionOptionIdentifier = null,
+                value = "Here is my response1",
+                isResonseAComment = false
+            };
+            var r2 = new SurveyResponseQuestionData()
+            {
+                questionId = q1.id,
+                questionShortName = null,
+                qestionOptionIdentifier = null,
+                value = "Here is my response2",
+                isResonseAComment = false
+            };
+            var r3 = new SurveyResponseQuestionData()
+            {
+                questionId = null,
+                questionShortName = q1.shortName,
+                qestionOptionIdentifier = null,
+                value = "Here is my respons3",
+                isResonseAComment = false
+            };
+            var r4 = new SurveyResponseQuestionData()
+            {
+                questionId = q2.id,
+                questionShortName = q2.shortName,
+                qestionOptionIdentifier = surveyQuestionOptions[0].id,
+                value = surveyQuestionOptions[0].value,
+                isResonseAComment = false
+            };
+            var r5 = new SurveyResponseQuestionData()
+            {
+                questionId = null,
+                questionShortName = q2.shortName,
+                qestionOptionIdentifier = surveyQuestionOptions[1].id,
+                value = surveyQuestionOptions[1].value,
+                isResonseAComment = false
+            };
+            var r6 = new SurveyResponseQuestionData()
+            {
+                questionId = q2.id,
+                questionShortName = null,
+                qestionOptionIdentifier = surveyQuestionOptions[2].id,
+                value = surveyQuestionOptions[2].value,
+                isResonseAComment = false
+            };
+            List<SurveyResponseQuestionData> data = new List<SurveyResponseQuestionData>()
+            {
+                r1, r2, r3, r4, r5, r6
+            };
 
-            Assert.IsTrue(r1 > 0);
-            Assert.IsTrue(r2 > 0);
-            Assert.IsTrue(r3 > 0);
-            Assert.IsTrue(r4 > 0);
-            Assert.IsTrue(r5 > 0);
-            Assert.IsTrue(r6 > 0);
+           var responseId = apiClient.CreateSurveyResponse(surveyId, "complete", data);
+
+            Assert.IsNotNull(responseId);
+            Assert.IsTrue(responseId > 0);
 
             // get survey Responses
             var allResponses = apiClient.GetResponses(surveyId);
 
-            Assert.AreEqual(allResponses.Count, 6);
+            Assert.AreEqual(allResponses.Count, 1);
         }
     }
 }
