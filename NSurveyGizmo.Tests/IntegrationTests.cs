@@ -499,6 +499,9 @@ namespace NSurveyGizmo.Tests
             Assert.IsTrue(r6 > 0);
 
             // get survey Responses
+            var allResponses = apiClient.GetResponses(surveyId);
+
+            Assert.AreEqual(allResponses.Count, 6);
         }
     }
 }

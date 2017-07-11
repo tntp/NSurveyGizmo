@@ -48,7 +48,7 @@ namespace NSurveyGizmo
                 url.Append($"&=description{Uri.EscapeDataString(props.question_description.English)}");
             }
             var response = GetData<SurveyQuestion>(url.ToString());
-            return response[0];
+            return response != null && response.Count > 0 ? response[0] : null;
         }
         //public void CreateQuestions(List<SurveyQuestion> surveyQuestion)
         //{
@@ -87,7 +87,7 @@ namespace NSurveyGizmo
         public SurveyQuestionOption GetQuestionOption(int surveyId, int questionId, int optionId, bool getAllPages = true)
         {
             var response = GetData<SurveyQuestionOption>($"survey/{surveyId}/surveyquestion/{questionId}/surveyoption/{optionId}", getAllPages);
-            return response[0];
+            return response != null && response.Count > 0 ? response[0] : null;
         }
         public int CreateQuestionOption(int surveyId, int surveyPage, int questionId, int? orderAfterId, LocalizableString title, string value)
         {
@@ -105,7 +105,7 @@ namespace NSurveyGizmo
                 url.Append($"&after={orderAfterId}");
             }
             var response = GetData<Result>(url.ToString());
-            return response[0].id;
+            return response != null && response.Count > 0 ? response[0].id : -1;
         }
         public void CreateQuestionOptions(List<SurveyQuestionOption> surveyQuestionOption)
         {
@@ -140,7 +140,7 @@ namespace NSurveyGizmo
 
         public List<SurveyResponse> GetResponses(int surveyId, bool getAllPages = true)
         {
-            return GetData<SurveyResponse>($"survey/{surveyId}/surveyresponse", getAllPages, true);
+            return GetData<SurveyResponse>("survey/" + surveyId + "/surveyresponse", getAllPages, true);
         }
         public int CreateSurveyResponse(int surveyId, string status, int? questionId, string questionShortname, int? questionOptionIdentifier, string value, bool isResponseComment)
         {
@@ -170,8 +170,7 @@ namespace NSurveyGizmo
                 url.Append($"&data=[{Uri.EscapeDataString(questionShortname)}][value={Uri.EscapeDataString(value)}]");
             }
             var response = GetData<Result>(url.ToString());
-            if(response.Count == 0 || response[0] == null)return -1;
-            return response[0].id;
+            return response != null && response.Count > 0 ? response[0].id : -1;
         }
         public bool UpdateSurveyResponse(int surveyResponseId, int surveyId, string status, int? questionId, string questionShortname, string questionOptionIdentifier, string value)
         {
@@ -208,10 +207,9 @@ namespace NSurveyGizmo
 
         public int CreateSurvey(string title)
         {
-            var surveys = GetData<Survey>($"survey/?_method=PUT&type=survey&title={Uri.EscapeDataString(title ?? "")}");
+            var response = GetData<Survey>($"survey/?_method=PUT&type=survey&title={Uri.EscapeDataString(title ?? "")}");
             // TODO: return the survey object?
-            if (surveys == null || surveys.Count < 1) return 0;
-            return surveys[0].id;
+            return response != null && response.Count > 0 ? response[0].id : -1;
         }
 
         public bool DeleteSurvey(int surveyId)
@@ -339,16 +337,14 @@ namespace NSurveyGizmo
             string firstName = null, string lastName = null, string organization = null, params string[] customFields)
         {
             var url = BuildCreateOrUpdateContactUrl(surveyId, campaignId, null, emailAddress, firstName, lastName, organization, customFields);
-            var results = GetData<Result>(url, nonQuery: true);
-            if (results == null || results.Count < 1 || results[0].result_ok == false) return -1;
-            return results[0].id;
+            var response = GetData<Result>(url, nonQuery: true);
+            return response != null && response.Count > 0 ? response[0].id : -1;
         }
         public int CreateContact(int surveyId, int campaignId, Contact contact)
         {
             var url = BuildCreateOrUpdateContactUrl(surveyId, campaignId, null, contact);
-            var results = GetData<Result>(url, nonQuery:true);
-            if (results == null || results.Count < 1 || results[0] == null) return -1;
-            return results[0].id;
+            var response = GetData<Result>(url, nonQuery:true);
+            return response != null && response.Count > 0 ? response[0].id : -1;
         }
         public bool UpdateContact(int surveyId, int campaignId, int contactId, Contact contact)
         {
@@ -438,7 +434,7 @@ namespace NSurveyGizmo
         }
         public bool CreateContactList(string listName)
         {
-            if (!String.IsNullOrEmpty(listName))
+            if (!string.IsNullOrEmpty(listName))
             {
                 var response = GetData<Result>($"contactlist?_method=PUT&listname={Uri.EscapeUriString(listName)}", nonQuery: true);
                 return ResultOk(response);
