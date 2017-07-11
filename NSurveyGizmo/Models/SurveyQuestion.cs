@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Linq;
 
 namespace NSurveyGizmo.Models
 {
@@ -13,6 +14,18 @@ namespace NSurveyGizmo.Models
         public string QuestionResponse { get; set; }
         public QuestionProperties properties { get; set; }
         public QuestionOptions[] options { get; set; }
+
+        public bool Equals(SurveyQuestion sq)
+        {
+            return id               == sq.id
+                && surveypage       == sq.surveypage
+                && _subtype         == sq._subtype
+                && _type            == sq._type
+                && QuestionResponse == sq.QuestionResponse
+                && title.Equals(sq.title)
+                && properties.Equals(sq.properties)
+                && options.SequenceEqual(sq.options);
+        }
     }
 
     public class QuestionProperties
@@ -22,6 +35,15 @@ namespace NSurveyGizmo.Models
         public bool hidden { get; set; }
         public string orientation { get; set; }
         public LocalizableString question_description { get; set; }
+
+        public bool Equals(QuestionProperties qp)
+        {
+            return option_sort == qp.option_sort
+                && required    == qp.required
+                && hidden      == qp.hidden
+                && orientation == qp.orientation
+                && question_description.Equals(qp.question_description);
+        }
     }
 
     public class QuestionOptions
@@ -29,5 +51,10 @@ namespace NSurveyGizmo.Models
         [Key]
         public int id { get; set; }
         public LocalizableString title { get; set; }
+
+        public bool Equals(QuestionOptions qo)
+        {
+            return id == qo.id && title.Equals(qo.title);
+        }
     }
 }

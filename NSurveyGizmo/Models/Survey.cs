@@ -1,4 +1,5 @@
-﻿using System;
+﻿// ReSharper disable NonReadonlyMemberInGetHashCode
+using System;
 using System.ComponentModel.DataAnnotations;
 
 namespace NSurveyGizmo.Models
@@ -11,11 +12,25 @@ namespace NSurveyGizmo.Models
         public Links links { get; set; }
         public string status { get; set; }
         public DateTime created_on { get; set; }
+
+        public bool Equals(Survey s)
+        {
+            return id         == s.id
+                && title      == s.title
+                && status     == s.status
+                && created_on == s.created_on
+                && links.Equals(s.links);
+        }
     }
 
     public class Links
     {
         public string edit { get; set; }
         public string publish { get; set; }
+
+        public bool Equals(Links l)
+        {
+            return edit == l.edit && publish == l.publish;
+        }
     }
 }

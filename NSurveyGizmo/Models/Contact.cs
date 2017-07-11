@@ -26,11 +26,6 @@ namespace NSurveyGizmo.Models
         public string scustomfield10 { get; set; }
         public string estatus { get; set; }
 
-        public override bool Equals(object obj)
-        {
-            return Equals(obj as Contact);
-        }
-
         public bool Equals(Contact contact)
         {
             return id             == contact.id
@@ -52,32 +47,6 @@ namespace NSurveyGizmo.Models
                 && scustomfield9  == contact.scustomfield9
                 && scustomfield10 == contact.scustomfield10
                 && estatus        == contact.estatus;
-        }
-
-        public override int GetHashCode()
-        {
-            return new
-            {
-                id,
-                emailAddress,
-                firstName,
-                lastName,
-                organization,
-                division,
-                team,
-                group,
-                role,
-                homephone,
-                faxphone,
-                businessphone,
-                mailingaddress,
-                scustomfield5,
-                scustomfield7,
-                scustomfield8,
-                scustomfield9,
-                scustomfield10,
-                estatus
-            }.GetHashCode();
         }
     }
 }

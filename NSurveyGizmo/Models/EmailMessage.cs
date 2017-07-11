@@ -21,11 +21,6 @@ namespace NSurveyGizmo.Models
         public DateTime datecreated { get; set; }
         public DateTime datemodified { get; set; }
 
-        public override bool Equals(object obj)
-        {
-            return Equals(obj as EmailMessage);
-        }
-
         public bool Equals(EmailMessage msg)
         {
             return id              == msg.id
@@ -35,32 +30,12 @@ namespace NSurveyGizmo.Models
                 && medium          == msg.medium
                 && invite_identity == msg.invite_identity
                 && status          == msg.status
-                && from            == msg.from
                 && subject         == msg.subject
-                && body            == msg.body
                 && sfootercopy     == msg.sfootercopy
                 && datecreated     == msg.datecreated
-                && datemodified    == msg.datemodified;
-        }
-
-        public override int GetHashCode()
-        {
-            return new
-            {
-                id,
-                _type,
-                _subtype,
-                messagetype,
-                medium,
-                invite_identity,
-                status,
-                from,
-                subject,
-                body,
-                sfootercopy,
-                datecreated,
-                datemodified
-            }.GetHashCode();
+                && datemodified    == msg.datemodified
+                && from.Equals(msg.from)
+                && body.Equals(msg.body);
         }
     }
 
@@ -68,11 +43,21 @@ namespace NSurveyGizmo.Models
     {
         public string email { get; set; }
         public string name { get; set; }
+
+        public bool Equals(From f)
+        {
+            return email == f.email && name == f.name;
+        }
     }
 
     public class Body
     {
         public string text { get; set; }
         public string html { get; set; }
+
+        public bool Equals(Body b)
+        {
+            return text == b.text && html == b.html;
+        }
     }
 }

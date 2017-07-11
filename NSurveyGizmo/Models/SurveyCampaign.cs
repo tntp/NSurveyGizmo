@@ -13,5 +13,14 @@ namespace NSurveyGizmo.Models
         public string name { get; set; }
         public string _type { get; set; }
         public string _subtype { get; set; }
+
+        public bool Equals(SurveyCampaign sc)
+        {
+            return id       == sc.id
+                && status   == sc.status
+                && name     == sc.name
+                && _type    == sc._type
+                && _subtype == sc._subtype;
+        }
     }
 }

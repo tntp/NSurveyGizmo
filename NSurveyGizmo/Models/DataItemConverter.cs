@@ -12,28 +12,22 @@ namespace NSurveyGizmo.Models
             return objectType == typeof(SurveyResponse);
         }
 
-        public override bool CanRead
-        {
-            get { return true; }
-        }
+        public override bool CanRead => true;
 
-        public override object ReadJson(JsonReader reader, Type objectType, object existingValue,
-            JsonSerializer serializer)
+        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
         {
-            var value = (SurveyResponse)existingValue;
-            if (value == null)
+            var value = (SurveyResponse) existingValue ?? new SurveyResponse
             {
-                value = new SurveyResponse();
-                value.SurveyQuestions = new List<SurveyQuestion>();
-                value.SurveyUrls = new List<SurveyUrl>();
-                value.SurveyGeoDatas = new List<SurveyGeoData>();
-                value.SurveyVariables = new List<SurveyVariable>();
-                value.SurveyVariableShowns = new List<SurveyVariableShown>();
-                value.SurveyQuestionHiddens = new List<SurveyQuestionHidden>();
-                value.SurveyQuestionOptions = new List<SurveyQuestionOption>();
-                value.SurveyQuestionMulties = new List<SurveyQuestionMulti>();
-                value.AllQuestions = new Dictionary<int, string>();
-            }
+                SurveyQuestions       = new List<SurveyQuestion>(),
+                SurveyUrls            = new List<SurveyUrl>(),
+                SurveyGeoDatas        = new List<SurveyGeoData>(),
+                SurveyVariables       = new List<SurveyVariable>(),
+                SurveyVariableShowns  = new List<SurveyVariableShown>(),
+                SurveyQuestionHiddens = new List<SurveyQuestionHidden>(),
+                SurveyQuestionOptions = new List<SurveyQuestionOption>(),
+                SurveyQuestionMulties = new List<SurveyQuestionMulti>(),
+                AllQuestions          = new Dictionary<int, string>()
+            };
 
             // Skip opening {
             reader.Read();
@@ -65,16 +59,13 @@ namespace NSurveyGizmo.Models
                     RegexOptions.IgnoreCase);
 
                 //URL
-                var matchUrl = Regex.Match(input, @"\[url",
-                    RegexOptions.IgnoreCase);
+                var matchUrl = Regex.Match(input, @"\[url", RegexOptions.IgnoreCase);
 
                 //GEO DATA
-                var matchGeo = Regex.Match(input, @"\[variable\(""STANDARD_",
-                    RegexOptions.IgnoreCase);
+                var matchGeo = Regex.Match(input, @"\[variable\(""STANDARD_", RegexOptions.IgnoreCase);
 
                 //VARIABLES SHOWN
-                var matchVariables = Regex.Match(input, @"\[variable",
-                    RegexOptions.IgnoreCase);
+                var matchVariables = Regex.Match(input, @"\[variable", RegexOptions.IgnoreCase);
 
                 //[question(1), option(\"1
                 //[question(11), option(\"2
@@ -114,9 +105,11 @@ namespace NSurveyGizmo.Models
                 if (matchSingleAnswer.Success)
                 {
                     var index = int.Parse(name.Substring(10, name.IndexOf(')') - 10));
-                    var sq = new SurveyQuestion();
-                    sq.id = index;
-                    sq.QuestionResponse = serializer.Deserialize<string>(reader);
+                    var sq = new SurveyQuestion
+                    {
+                        id = index,
+                        QuestionResponse = serializer.Deserialize<string>(reader)
+                    };
 
                     value.SurveyQuestions.Add(sq);
                     value.AddQuestion(sq.id, sq.QuestionResponse);
@@ -124,56 +117,68 @@ namespace NSurveyGizmo.Models
                 else if (matchUrl.Success)
                 {
                     var urlName = name.Substring(6, name.Length - 9);
-                    var su = new SurveyUrl();
-                    su.Name = urlName;
-                    su.Value = serializer.Deserialize<string>(reader);
+                    var su = new SurveyUrl
+                    {
+                        Name = urlName,
+                        Value = serializer.Deserialize<string>(reader)
+                    };
                     value.SurveyUrls.Add(su);
                 }
                 else if (matchGeo.Success)
                 {
                     var geoName = name.Substring(11, name.Length - 14);
-                    var sgd = new SurveyGeoData();
-                    sgd.Name = geoName;
-                    sgd.Value = serializer.Deserialize<string>(reader);
+                    var sgd = new SurveyGeoData
+                    {
+                        Name = geoName,
+                        Value = serializer.Deserialize<string>(reader)
+                    };
                     value.SurveyGeoDatas.Add(sgd);
                 }
                 else if (matchSingleVariable.Success)
                 {
                     var index = int.Parse(name.Substring(10, name.IndexOf(')') - 10));
-                    var sv = new SurveyVariable();
-                    sv.SurveyVariableID = index;
-                    sv.Value = serializer.Deserialize<string>(reader);
+                    var sv = new SurveyVariable
+                    {
+                        SurveyVariableID = index,
+                        Value            = serializer.Deserialize<string>(reader)
+                    };
                     value.SurveyVariables.Add(sv);
                 }
                 else if (matchVariables.Success)
                 {
                     var varName = name.Substring(11, name.Length - 14);
-                    var svs = new SurveyVariableShown();
-                    svs.Name = varName;
-                    svs.Value = serializer.Deserialize<string>(reader);
+                    var svs = new SurveyVariableShown
+                    {
+                        Name  = varName,
+                        Value = serializer.Deserialize<string>(reader)
+                    };
                     value.SurveyVariableShowns.Add(svs);
                 }
                 else if (matchHiddenValue.Success)
                 {
                     var index = int.Parse(name.Substring(10, name.IndexOf(')') - 10));
-                    var sqh = new SurveyQuestionHidden();
-                    sqh.QuestionID = index;
-                    sqh.QuestionResponse = serializer.Deserialize<string>(reader);
+                    var sqh = new SurveyQuestionHidden
+                    {
+                        QuestionID       = index,
+                        QuestionResponse = serializer.Deserialize<string>(reader)
+                    };
                     value.SurveyQuestionHiddens.Add(sqh);
                 }
                 else if (matchMultiSelect.Success)
                 {
                     //Multiple choice question selections
-                    var nameArray = name.Split(')');
+                    var nameArray    = name.Split(')');
                     var questionPart = nameArray[0];
-                    var optionPart = nameArray[1];
-                    var index = int.Parse(questionPart.Substring(10, questionPart.Length - 10));
-                    var indexSub = int.Parse(optionPart.Substring(9, optionPart.Length - 9));
+                    var optionPart   = nameArray[1];
+                    var index        = int.Parse(questionPart.Substring(10, questionPart.Length - 10));
+                    var indexSub     = int.Parse(optionPart.Substring(9, optionPart.Length - 9));
 
-                    var sqm = new SurveyQuestionMulti();
-                    sqm.OptionID = indexSub;
-                    sqm.QuestionID = index;
-                    sqm.QuestionResponse = serializer.Deserialize<string>(reader);
+                    var sqm = new SurveyQuestionMulti
+                    {
+                        OptionID         = indexSub,
+                        QuestionID       = index,
+                        QuestionResponse = serializer.Deserialize<string>(reader)
+                    };
 
                     value.SurveyQuestionMulties.Add(sqm);
                     value.AddQuestion(sqm.QuestionID, sqm.QuestionResponse);
@@ -187,16 +192,18 @@ namespace NSurveyGizmo.Models
                 else if (matchOption.Success)
                 {
                     //Optional text value for a given question
-                    var nameArray = name.Split(')');
+                    var nameArray    = name.Split(')');
                     var questionPart = nameArray[0];
-                    var optionPart = nameArray[1];
-                    var index = int.Parse(questionPart.Substring(10, questionPart.Length - 10));
-                    var indexSub = int.Parse(optionPart.Substring(10, 5));
+                    var optionPart   = nameArray[1];
+                    var index        = int.Parse(questionPart.Substring(10, questionPart.Length - 10));
+                    var indexSub     = int.Parse(optionPart.Substring(10, 5));
 
-                    var sqo = new SurveyQuestionOption();
-                    sqo.OptionID = indexSub;
-                    sqo.QuestionID = index;
-                    sqo.QuestionResponse = serializer.Deserialize<string>(reader);
+                    var sqo = new SurveyQuestionOption
+                    {
+                        OptionID         = indexSub,
+                        QuestionID       = index,
+                        QuestionResponse = serializer.Deserialize<string>(reader)
+                    };
                     value.SurveyQuestionOptions.Add(sqo);
                     value.AddQuestion(sqo.QuestionID, sqo.QuestionResponse);
                 }
@@ -214,10 +221,7 @@ namespace NSurveyGizmo.Models
             return value;
         }
 
-        public override bool CanWrite
-        {
-            get { return false; }
-        }
+        public override bool CanWrite => false;
 
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
         {

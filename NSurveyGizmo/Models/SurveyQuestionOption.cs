@@ -14,5 +14,16 @@ namespace NSurveyGizmo.Models
         public string QuestionResponse { get; set; }
         public string value { get; set; }
 
+        public bool Equals(SurveyQuestionOption sqo)
+        {
+            return OptionID         == sqo.OptionID
+                && surveyID         == sqo.surveyID
+                && after            == sqo.after
+                && surveypage       == sqo.surveypage
+                && QuestionID       == sqo.QuestionID
+                && QuestionResponse == sqo.QuestionResponse
+                && value            == sqo.value
+                && title.Equals(sqo.title);
+        }
     }
 }
