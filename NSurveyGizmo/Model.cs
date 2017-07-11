@@ -163,6 +163,7 @@ namespace NSurveyGizmo
         public LocalizableString title { get; set; }
         public string _subtype { get; set; }
         public string _type { get; set; }
+        public string shortName { get; set; }
         public string QuestionResponse { get; set; }
         public QuestionProperties properties { get; set; }
         public QuestionOptions[] options { get; set; }
@@ -236,6 +237,8 @@ namespace NSurveyGizmo
     {
         [Key]
         public int OptionID { get; set; }
+        public int id { get; set; }
+        public string _type { get; set; }
         public int surveyID { get; set; }
         public int after { get; set; }
         public int surveypage { get; set; }

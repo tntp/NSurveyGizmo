@@ -23,17 +23,17 @@ namespace NSurveyGizmo
         {
             return GetData<SurveyQuestion>($"survey/{surveyId}/surveyquestion", getAllPages, true);
         }
-        public SurveyQuestion CreateQuestion(int surveyId, int surveyPage, string type, LocalizableString title, string description, QuestionProperties props)
+        public SurveyQuestion CreateQuestion(int surveyId, int surveyPage, string type, LocalizableString title, string shortName, QuestionProperties props)
         {
             var url = new StringBuilder($"survey/{surveyId}/surveypage/{surveyPage}/surveyquestion?_method=PUT");
 
+            if (!string.IsNullOrEmpty(shortName))
+            {
+                url.Append($"&shortname={Uri.EscapeDataString(shortName)}");
+            }
             if (!string.IsNullOrEmpty(type))
             {
                 url.Append($"&type={Uri.EscapeDataString(type)}");
-            }
-            if (!string.IsNullOrEmpty(description))
-            {
-                url.Append($"&=description{Uri.EscapeDataString(description)}");
             }
             if (!string.IsNullOrEmpty(title.English))
             {
@@ -41,11 +41,11 @@ namespace NSurveyGizmo
             }
             if (props != null)
             {
-               url.Append($"&properties[required]={props.required}");
-                url.Append($"&properties[required]={props.hidden}");
-                url.Append($"&properties[required]={props.option_sort}");
-                url.Append($"&properties[required]={props.orientation}");
-                url.Append($"&properties[required]={props.question_description}");
+                url.Append($"&properties[required]={props.required}");
+                url.Append($"&properties[hidden]={props.hidden}");
+                url.Append($"&properties[option_sort]={props.option_sort}");
+                url.Append($"&properties[orientation]={props.orientation}");
+                url.Append($"&=description{Uri.EscapeDataString(props.question_description.English)}");
             }
             var response = GetData<SurveyQuestion>(url.ToString());
             return response[0];
@@ -86,14 +86,14 @@ namespace NSurveyGizmo
         }
         public SurveyQuestionOption GetQuestionOption(int surveyId, int questionId, int optionId, bool getAllPages = true)
         {
-            var response = GetData<SurveyQuestionOption>($"survey/{surveyId}/surveyquestion/{questionId}/surveyoption/{optionId}", getAllPages, true);
+            var response = GetData<SurveyQuestionOption>($"survey/{surveyId}/surveyquestion/{questionId}/surveyoption/{optionId}", getAllPages);
             return response[0];
         }
-        public bool CreateQuestionOption(int surveyId, int surveyPage, int questionId, int? orderAfterId, LocalizableString title, string value)
+        public int CreateQuestionOption(int surveyId, int surveyPage, int questionId, int? orderAfterId, LocalizableString title, string value)
         {
             if (string.IsNullOrEmpty(title.English) || string.IsNullOrEmpty(value))
             {
-                return false;
+                return -1;
             }
             var url = new StringBuilder($"survey/{surveyId}/surveypage/{surveyPage}/surveyquestion/{questionId}/surveyoption?_method=PUT");
             
@@ -105,7 +105,7 @@ namespace NSurveyGizmo
                 url.Append($"&after={orderAfterId}");
             }
             var response = GetData<Result>(url.ToString());
-            return ResultOk(response);
+            return response[0].id;
         }
         public void CreateQuestionOptions(List<SurveyQuestionOption> surveyQuestionOption)
         {
@@ -142,27 +142,36 @@ namespace NSurveyGizmo
         {
             return GetData<SurveyResponse>($"survey/{surveyId}/surveyresponse", getAllPages, true);
         }
-        public bool CreateSurveyResponse(int surveyId, string status, int? questionId, string questionShortname, string questionOptionIdentifier, string value)
+        public int CreateSurveyResponse(int surveyId, string status, int? questionId, string questionShortname, int? questionOptionIdentifier, string value, bool isResponseComment)
         {
             var url = new StringBuilder($"survey/{surveyId}/surveyresponse?_method=PUT");
             if (status != null)
             {
-              url.Append($"&title={Uri.EscapeDataString(status.ToString())}");
+              url.Append($"&status={Uri.EscapeDataString(status)}");
             }
-            if (questionId != null && !String.IsNullOrEmpty(questionOptionIdentifier) && !String.IsNullOrEmpty(value))
+            if (questionId != null && questionOptionIdentifier != null && !string.IsNullOrEmpty(value))
             {
-                url.Append($"&data=[{questionId}][{Uri.EscapeDataString(questionOptionIdentifier)}]={Uri.EscapeDataString(value)}");
-            }
-            if (!String.IsNullOrEmpty(questionShortname) && !String.IsNullOrEmpty(questionOptionIdentifier) && !String.IsNullOrEmpty(value))
-            {
-                url.Append($"&data=[{Uri.EscapeDataString(questionShortname)}][{Uri.EscapeDataString(questionOptionIdentifier)}]={Uri.EscapeDataString(value)}");
+                url.Append($"&data=[{questionId}][{questionOptionIdentifier}]={Uri.EscapeDataString(value)}");
 
-            }else if (!String.IsNullOrEmpty(questionShortname) &&  !String.IsNullOrEmpty(value))
+            }else if (questionId != null && !string.IsNullOrEmpty(value) && !isResponseComment)
+            {
+                url.Append($"&data=[{questionId}][value]={Uri.EscapeDataString(value)}");
+
+            }else if (questionId != null && !string.IsNullOrEmpty(value) && isResponseComment)
+            {
+                url.Append($"&data=[{questionId}][comment]={Uri.EscapeDataString(value)}");
+            }
+            if (!string.IsNullOrEmpty(questionShortname) && questionOptionIdentifier != null && !string.IsNullOrEmpty(value))
+            {
+                url.Append($"&data=[{Uri.EscapeDataString(questionShortname)}][{questionOptionIdentifier}]={Uri.EscapeDataString(value)}");
+
+            }else if (!string.IsNullOrEmpty(questionShortname) && !string.IsNullOrEmpty(value) && !url.ToString().Contains("data"))
             {
                 url.Append($"&data=[{Uri.EscapeDataString(questionShortname)}][value={Uri.EscapeDataString(value)}]");
             }
             var response = GetData<Result>(url.ToString());
-            return ResultOk(response);
+            if(response.Count == 0 || response[0] == null)return -1;
+            return response[0].id;
         }
         public bool UpdateSurveyResponse(int surveyResponseId, int surveyId, string status, int? questionId, string questionShortname, string questionOptionIdentifier, string value)
         {
@@ -343,7 +352,7 @@ namespace NSurveyGizmo
         }
         public bool UpdateContact(int surveyId, int campaignId, int contactId, Contact contact)
         {
-            var url = BuildCreateOrUpdateContactUrl(surveyId, campaignId, contactId, contact);
+            var url = BuildCreateOrUpdateContactUrl(surveyId, campaignId, contactId, contact, null);
             var results = GetData<Result>(url, nonQuery: true);
             return ResultOk(results);
         }
@@ -371,11 +380,14 @@ namespace NSurveyGizmo
                         {"slastname", contact.slastname},
                         {"sorganization", contact.sorganization}
                     });
-            for (var i = 0; i < customFields.Length; i++)
+            if (customFields != null)
             {
-                if (customFields[i] != null)
+                for (var i = 0; i < customFields.Length; i++)
                 {
-                    url.Append("&scustomfield" + (i + 1) + "=" + Uri.EscapeDataString(customFields[i]));
+                    if (customFields[i] != null)
+                    {
+                        url.Append("&scustomfield" + (i + 1) + "=" + Uri.EscapeDataString(customFields[i]));
+                    }
                 }
             }
 
@@ -397,12 +409,14 @@ namespace NSurveyGizmo
                         {"slastname", lastName},
                         {"sorganization", organization}
                     });
-
-            for (var i = 0; i < customFields.Length; i++)
+            if (customFields != null)
             {
-                if (customFields[i] != null)
+                for (var i = 0; i < customFields.Length; i++)
                 {
-                    url.Append("&scustomfield" + (i + 1) + "=" + Uri.EscapeDataString(customFields[i]));
+                    if (customFields[i] != null)
+                    {
+                        url.Append("&scustomfield" + (i + 1) + "=" + Uri.EscapeDataString(customFields[i]));
+                    }
                 }
             }
 

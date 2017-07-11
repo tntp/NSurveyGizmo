@@ -1,5 +1,6 @@
 ﻿using NSurveyGizmo;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -209,15 +210,68 @@ namespace NSurveyGizmo.Tests
             firstQuestionTitle.English ="Test survey question";
             var secondQuestionTitle = new LocalizableString();
             secondQuestionTitle.English = "Test survey question2";
-           
-            var q1 = apiClient.CreateQuestion(surveyId, 1, "checkbox", firstQuestionTitle, null, null);
-            var q2 = apiClient.CreateQuestion(surveyId, 1, "essay", secondQuestionTitle, null, null);
+
+            var q1 = apiClient.CreateQuestion(surveyId, 1, "text", firstQuestionTitle, "q1Short", null);
+            var q2 = apiClient.CreateQuestion(surveyId, 1, "menu", secondQuestionTitle, "q2Short", null);
 
             // get questions
             var questions = apiClient.GetQuestions(surveyId);
             Assert.IsNotNull(questions);
             Assert.IsTrue(questions.Any(i => i.id == q1.id));
             Assert.IsTrue(questions.Any(i => i.id == q2.id));
+        }
+        [TestMethod()]
+        public void Create_QuestionOptions_Test()
+        {
+            var testStartedAt = DateTime.Now;
+            var creds = File.ReadAllLines(@"C:\tmp\sg_creds.txt");
+            var apiClient = new ApiClient() { ApiToken = creds[0], ApiTokenSecret = creds[1] };
+
+            // create survey
+            var title = "Test Survey " + testStartedAt;
+            var surveyId = apiClient.CreateSurvey(title);
+            Assert.IsTrue(surveyId > 0);
+
+            // get survey
+            var survey = apiClient.GetSurvey(surveyId);
+            Assert.IsNotNull(survey);
+            Assert.AreEqual(surveyId, survey.id);
+            Assert.AreEqual(title, survey.title);
+            Assert.AreEqual("Launched", survey.status);
+
+            // create questions
+            var firstQuestionTitle = new LocalizableString();
+            firstQuestionTitle.English = "Test survey question";
+            var secondQuestionTitle = new LocalizableString();
+            secondQuestionTitle.English = "Test survey question2";
+
+            var q1 = apiClient.CreateQuestion(surveyId, 1, "text", firstQuestionTitle, "q1Short", null);
+            var q2 = apiClient.CreateQuestion(surveyId, 1, "menu", secondQuestionTitle, "q2Short", null);
+
+            // get questions
+            var questions = apiClient.GetQuestions(surveyId);
+            Assert.IsNotNull(questions);
+            Assert.IsTrue(questions.Any(i => i.id == q1.id));
+            Assert.IsTrue(questions.Any(i => i.id == q2.id));
+
+            // add question options
+            int[] opIds = new int[6];
+            for (var i = 0; i <= 5; i++)
+            {
+                var questionOptionTitle = new LocalizableString();
+                questionOptionTitle.English = "option" + i;
+
+                var opId = apiClient.CreateQuestionOption(surveyId, 1, q2.id, null, questionOptionTitle, $"option{i}val");
+                opIds[i] = opId;
+            }
+
+            // get question options
+            for (var i = 0; i <= 5; i++)
+            {
+                var getQuestionOp = apiClient.GetQuestionOption(surveyId, q2.id, opIds[i]);
+                Assert.AreEqual(opIds[i], getQuestionOp.id);
+            }
+            
         }
         [TestMethod()]
         public void Create_Contact_Test()
@@ -237,6 +291,39 @@ namespace NSurveyGizmo.Tests
             Assert.AreEqual(surveyId, survey.id);
             Assert.AreEqual(title, survey.title);
             Assert.AreEqual("Launched", survey.status);
+
+            // create questions
+            var firstQuestionTitle = new LocalizableString();
+            firstQuestionTitle.English = "Test survey question";
+            var secondQuestionTitle = new LocalizableString();
+            secondQuestionTitle.English = "Test survey question2";
+
+            var q1 = apiClient.CreateQuestion(surveyId, 1, "text", firstQuestionTitle, "q1Short", null);
+            var q2 = apiClient.CreateQuestion(surveyId, 1, "menu", secondQuestionTitle, "q2Short", null);
+
+            // get questions
+            var questions = apiClient.GetQuestions(surveyId);
+            Assert.IsNotNull(questions);
+            Assert.IsTrue(questions.Any(i => i.id == q1.id));
+            Assert.IsTrue(questions.Any(i => i.id == q2.id));
+
+            // add question options
+            int[] opIds = new int[6];
+            for (var i = 0; i <= 5; i++)
+            {
+                var questionOptionTitle = new LocalizableString();
+                questionOptionTitle.English = "option" + i;
+
+                var opId = apiClient.CreateQuestionOption(surveyId, 1, q2.id, null, questionOptionTitle, $"option{i}val");
+                opIds[i] = opId;
+            }
+
+            // get question options
+            for (var i = 0; i <= 5; i++)
+            {
+                var getQuestionOp = apiClient.GetQuestionOption(surveyId, q2.id, opIds[i]);
+                Assert.AreEqual(opIds[i], getQuestionOp.id);
+            }
 
             //create survey campaign
             var campaign = apiClient.CreateCampaign(surveyId, "testCampaign");
@@ -271,6 +358,39 @@ namespace NSurveyGizmo.Tests
             Assert.AreEqual(title, survey.title);
             Assert.AreEqual("Launched", survey.status);
 
+            // create questions
+            var firstQuestionTitle = new LocalizableString();
+            firstQuestionTitle.English = "Test survey question";
+            var secondQuestionTitle = new LocalizableString();
+            secondQuestionTitle.English = "Test survey question2";
+
+            var q1 = apiClient.CreateQuestion(surveyId, 1, "text", firstQuestionTitle, "q1Short", null);
+            var q2 = apiClient.CreateQuestion(surveyId, 1, "menu", secondQuestionTitle, "q2Short", null);
+
+            // get questions
+            var questions = apiClient.GetQuestions(surveyId);
+            Assert.IsNotNull(questions);
+            Assert.IsTrue(questions.Any(i => i.id == q1.id));
+            Assert.IsTrue(questions.Any(i => i.id == q2.id));
+
+            // add question options
+            int[] opIds = new int[6];
+            for (var i = 0; i <= 5; i++)
+            {
+                var questionOptionTitle = new LocalizableString();
+                questionOptionTitle.English = "option" + i;
+
+                var opId = apiClient.CreateQuestionOption(surveyId, 1, q2.id, null, questionOptionTitle, $"option{i}val");
+                opIds[i] = opId;
+            }
+
+            // get question options
+            for (var i = 0; i <= 5; i++)
+            {
+                var getQuestionOp = apiClient.GetQuestionOption(surveyId, q2.id, opIds[i]);
+                Assert.AreEqual(opIds[i], getQuestionOp.id);
+            }
+
             //create survey campaign
             var campaign = apiClient.CreateCampaign(surveyId, "testCampaign");
             Assert.AreEqual(campaign, apiClient.GetCampaign(surveyId, campaign).id);
@@ -292,5 +412,93 @@ namespace NSurveyGizmo.Tests
             Assert.AreEqual(updatedContact.slastname, fakeContact.slastname);
         }
 
+        [TestMethod()]
+        public void Create_Survey_Response_Test()
+        {
+            var testStartedAt = DateTime.Now;
+            var creds = File.ReadAllLines(@"C:\tmp\sg_creds.txt");
+            var apiClient = new ApiClient() { ApiToken = creds[0], ApiTokenSecret = creds[1] };
+
+            // create survey
+            var title = "Test Survey " + testStartedAt;
+            var surveyId = apiClient.CreateSurvey(title);
+            Assert.IsTrue(surveyId > 0);
+
+            // get survey
+            var survey = apiClient.GetSurvey(surveyId);
+            Assert.IsNotNull(survey);
+            Assert.AreEqual(surveyId, survey.id);
+            Assert.AreEqual(title, survey.title);
+            Assert.AreEqual("Launched", survey.status);
+
+            // create questions
+            var firstQuestionTitle = new LocalizableString();
+            firstQuestionTitle.English = "Test survey question text field";
+            var secondQuestionTitle = new LocalizableString();
+            secondQuestionTitle.English = "Test survey question2 dropdown";
+
+            var q1 = apiClient.CreateQuestion(surveyId, 1, "text", firstQuestionTitle, "q1Short", null);
+            var q2 = apiClient.CreateQuestion(surveyId, 1, "menu", secondQuestionTitle, "q2Short", null);
+
+            // get questions
+            var questions = apiClient.GetQuestions(surveyId);
+            Assert.IsNotNull(questions);
+            Assert.IsTrue(questions.Any(i => i.id == q1.id));
+            Assert.IsTrue(questions.Any(i => i.id == q2.id));
+
+            // add question options
+            List<SurveyQuestionOption> surveyQuestionOptions = new List<SurveyQuestionOption>();
+            for (var i = 0; i <= 5; i++)
+            {
+                var questionOp = new SurveyQuestionOption();
+                var questionOptionTitle = new LocalizableString();
+                questionOptionTitle.English = "option" + i;
+                questionOp.title = questionOptionTitle;
+                questionOp.value = $"option{i}val";
+
+                questionOp.id = apiClient.CreateQuestionOption(surveyId, 1, q2.id, null, questionOp.title, questionOp.value);
+                surveyQuestionOptions.Add(questionOp);
+            }
+
+            // get question options
+            foreach (var op in surveyQuestionOptions)
+            {
+                var getQuestionOp = apiClient.GetQuestionOption(surveyId, q2.id, op.id);
+                Assert.AreEqual(op.id, getQuestionOp.id);
+            }
+
+            //create survey campaign
+            var campaign = apiClient.CreateCampaign(surveyId, "testCampaign");
+            Assert.AreEqual(campaign, apiClient.GetCampaign(surveyId, campaign).id);
+
+            // create survey contact
+            var fakeContact = new Contact();
+            fakeContact.semailaddress = "U_test12345@tntp.org";
+            fakeContact.sfirstname = "John";
+            fakeContact.slastname = "Doe";
+            fakeContact.sorganization = "Test Organization";
+            var contactId = apiClient.CreateContact(surveyId, campaign, fakeContact);
+            Assert.AreEqual(contactId, apiClient.GetContact(surveyId, campaign, contactId).id);
+
+            // create survey Responses
+            var r1 = apiClient.CreateSurveyResponse(surveyId, "Complete", q1.id, q1.shortName, null, "Here is my response1",
+                false);
+            var r2 = apiClient.CreateSurveyResponse(surveyId, "Complete", q1.id, null, null, "Here is my response2",
+                false);
+            var r3 = apiClient.CreateSurveyResponse(surveyId, "Complete", null, q1.shortName, null, "Here is my response3",
+                false);
+            var r4 = apiClient.CreateSurveyResponse(surveyId, "Complete", q2.id, q2.shortName, surveyQuestionOptions[0].id, surveyQuestionOptions[0].value, false);
+            var r5 = apiClient.CreateSurveyResponse(surveyId, "Complete", null, q2.shortName, surveyQuestionOptions[1].id, surveyQuestionOptions[1].value, false);
+            var r6 = apiClient.CreateSurveyResponse(surveyId, "Complete", q2.id, null, surveyQuestionOptions[2].id, surveyQuestionOptions[2].value, false);
+
+            Assert.IsTrue(r1 > 0);
+            Assert.IsTrue(r2 > 0);
+            Assert.IsTrue(r3 > 0);
+            Assert.IsTrue(r4 > 0);
+            Assert.IsTrue(r5 > 0);
+            Assert.IsTrue(r6 > 0);
+
+            // get survey Responses
+        }
     }
 }
