@@ -1,8 +1,6 @@
-﻿using NSurveyGizmo;
-using NSurveyGizmo.Models;
+﻿using NSurveyGizmo.Models;
 using System;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -17,9 +15,6 @@ namespace NSurveyGizmo.Tests
         [TestMethod]
         public void TestQuestions()
         {
-            var creds = File.ReadAllLines(@"C:\tmp\sg_creds.txt");
-            var apiClient = new ApiClient() { ApiToken = creds[0], ApiTokenSecret = creds[1] };
-
             Func<QuestionOptions[], string> joinOptions = options => options != null && options.Length > 0
                 ? "\noptions :\n" + string.Join(",\n\n", options.Select(o => o.title)) +
                   ",\n"
@@ -49,11 +44,6 @@ namespace NSurveyGizmo.Tests
         [TestMethod]
         public void Create_And_Delete_Survey_And_Campaign_Json()
         {
-            var testStartedAt = DateTime.Now;
-
-            var creds = File.ReadAllLines(@"C:\tmp\sg_creds.txt");
-            var apiClient = new ApiClient() { ApiToken = creds[0], ApiTokenSecret = creds[1] };
-
             // create survey
             var title = "Test Survey " + testStartedAt;
             var surveyId = apiClient.CreateSurvey(title);
@@ -132,12 +122,13 @@ namespace NSurveyGizmo.Tests
 
 
             // create contact
-            var datetime = testStartedAt.ToString("yyyyMMddHHmmss");
-            var fakeContact = new Contact();
-            fakeContact.emailAddress = "U_test12345@tntp.org";
-            fakeContact.firstName = "John";
-            fakeContact.lastName = "Doe";
-            fakeContact.organization = "Test Organization";
+            var fakeContact = new Contact
+            {
+                emailAddress = "U_test12345@tntp.org",
+                firstName = "John",
+                lastName = "Doe",
+                organization = "Test Organization"
+            };
             var contactId = apiClient.CreateContact(surveyId, campaignId, fakeContact);
             Assert.IsTrue(contactId > 0);
            
@@ -167,13 +158,10 @@ namespace NSurveyGizmo.Tests
             var surveyDeleted = apiClient.DeleteSurvey(surveyId);
             Assert.IsTrue(surveyDeleted);
         }
+
         [TestMethod()]
         public void Create_Survey_Test()
         {
-            var testStartedAt = DateTime.Now;
-            var creds = File.ReadAllLines(@"C:\tmp\sg_creds.txt");
-            var apiClient = new ApiClient() { ApiToken = creds[0], ApiTokenSecret = creds[1] };
-
             // create survey
             var title = "Test Survey " + testStartedAt;
             var surveyId = apiClient.CreateSurvey(title);
@@ -186,13 +174,10 @@ namespace NSurveyGizmo.Tests
             Assert.AreEqual(title, survey.title);
             Assert.AreEqual("Launched", survey.status);
         }
-        [TestMethod()]
+
+        [TestMethod]
         public void Create_Questions_Test()
         {
-            var testStartedAt = DateTime.Now;
-            var creds = File.ReadAllLines(@"C:\tmp\sg_creds.txt");
-            var apiClient = new ApiClient() { ApiToken = creds[0], ApiTokenSecret = creds[1] };
-
             // create survey
             var title = "Test Survey " + testStartedAt;
             var surveyId = apiClient.CreateSurvey(title);
@@ -206,10 +191,8 @@ namespace NSurveyGizmo.Tests
             Assert.AreEqual("Launched", survey.status);
 
             // create questions
-            var firstQuestionTitle = new LocalizableString();
-            firstQuestionTitle.English ="Test survey question";
-            var secondQuestionTitle = new LocalizableString();
-            secondQuestionTitle.English = "Test survey question2";
+            var firstQuestionTitle = new LocalizableString("Test survey question");
+            var secondQuestionTitle = new LocalizableString("Test survey question2");
            
             var q1 = apiClient.CreateQuestion(surveyId, 1, "checkbox", firstQuestionTitle, null, null);
             var q2 = apiClient.CreateQuestion(surveyId, 1, "essay", secondQuestionTitle, null, null);
@@ -220,13 +203,10 @@ namespace NSurveyGizmo.Tests
             Assert.IsTrue(questions.Any(i => i.id == q1.id));
             Assert.IsTrue(questions.Any(i => i.id == q2.id));
         }
-        [TestMethod()]
+
+        [TestMethod]
         public void Create_Contact_Test()
         {
-            var testStartedAt = DateTime.Now;
-            var creds = File.ReadAllLines(@"C:\tmp\sg_creds.txt");
-            var apiClient = new ApiClient() { ApiToken = creds[0], ApiTokenSecret = creds[1] };
-
             // create survey
             var title = "Test Survey " + testStartedAt;
             var surveyId = apiClient.CreateSurvey(title);
@@ -244,21 +224,20 @@ namespace NSurveyGizmo.Tests
             Assert.AreEqual(campaign, apiClient.GetCampaign(surveyId, campaign).id);
 
             // create survey contact
-            var fakeContact = new Contact();
-            fakeContact.emailAddress = "U_test12345@tntp.org";
-            fakeContact.firstName = "John";
-            fakeContact.lastName = "Doe";
-            fakeContact.organization = "Test Organization";
+            var fakeContact = new Contact
+            {
+                emailAddress = "U_test12345@tntp.org",
+                firstName = "John",
+                lastName = "Doe",
+                organization = "Test Organization"
+            };
             var contactId = apiClient.CreateContact(surveyId, campaign, fakeContact);
             Assert.AreEqual(contactId, apiClient.GetContact(surveyId, campaign, Convert.ToInt32(contactId)).id);
         }
-        [TestMethod()]
+
+        [TestMethod]
         public void Update_Contacts_Test()
         {
-            var testStartedAt = DateTime.Now;
-            var creds = File.ReadAllLines(@"C:\tmp\sg_creds.txt");
-            var apiClient = new ApiClient() { ApiToken = creds[0], ApiTokenSecret = creds[1] };
-
             // create survey
             var title = "Test Survey " + testStartedAt;
             var surveyId = apiClient.CreateSurvey(title);
@@ -276,11 +255,13 @@ namespace NSurveyGizmo.Tests
             Assert.AreEqual(campaign, apiClient.GetCampaign(surveyId, campaign).id);
 
             // create survey contact
-            var fakeContact = new Contact();
-            fakeContact.emailAddress = "U_test12345@tntp.org";
-            fakeContact.firstName = "John";
-            fakeContact.lastName = "Doe";
-            fakeContact.organization = "Test Organization";
+            var fakeContact = new Contact
+            {
+                emailAddress = "U_test12345@tntp.org",
+                firstName = "John",
+                lastName = "Doe",
+                organization = "Test Organization"
+            };
             var contactId = apiClient.CreateContact(surveyId, campaign, fakeContact);
             Assert.AreEqual(contactId, apiClient.GetContact(surveyId, campaign, contactId).id);
 
@@ -291,6 +272,5 @@ namespace NSurveyGizmo.Tests
             Assert.IsTrue(updateSuccess);
             Assert.AreEqual(updatedContact.lastName, fakeContact.lastName);
         }
-
     }
 }
