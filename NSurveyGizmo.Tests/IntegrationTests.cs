@@ -10,7 +10,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace NSurveyGizmo.Tests
 {
     [TestClass]
-    public class IntegrationTests
+    public partial class IntegrationTests
     {
         private static readonly Regex HtmlRegex = new Regex("<.*?>", RegexOptions.Compiled);
 
