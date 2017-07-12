@@ -157,7 +157,7 @@ namespace NSurveyGizmo
             //}
             foreach (var sd in questionData)
             {
-              var responseFormatted = FormatSurveyQuestionData(sd.questionId, sd.questionShortName, sd.qestionOptionIdentifier, sd.value, sd.isResonseAComment, sd.questionOptionTitle);
+              var responseFormatted = FormatSurveyQuestionData(sd.questionId, sd.questionShortName, sd.questionOptionIdentifier, sd.value, sd.isResonseAComment, sd.questionOptionTitle);
               url.Append(responseFormatted);
             }
             var response = GetData<SurveyResponse>(url.ToString());

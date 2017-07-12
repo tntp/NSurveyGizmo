@@ -26,6 +26,24 @@ namespace NSurveyGizmo.Models
         public string scustomfield10 { get; set; }
         public string estatus { get; set; }
 
+        // TODO: Update Equals() method to account for new properties
+        public string semailaddress { get; set; }
+        public string sfirstname { get; set; }
+        public string slastname { get; set; }
+        public string sorganization { get; set; }
+        public string sdivision { get; set; }
+        public string sdepartment { get; set; }
+        public string steam { get; set; }
+        public string sgroup { get; set; }
+        public string srole { get; set; }
+        public string shomephone { get; set; }
+        public string sfaxphone { get; set; }
+        public string sbusinessphone { get; set; }
+        public string smailingaddress { get; set; }
+        public string smailingaddress2 { get; set; }
+        public string smailingaddresscity { get; set; }
+        public string smailingaddressstate { get; set; }
+
         public bool Equals(Contact contact)
         {
             return id             == contact.id

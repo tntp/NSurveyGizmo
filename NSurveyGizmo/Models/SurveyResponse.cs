@@ -130,4 +130,24 @@ namespace NSurveyGizmo.Models
                 && Value == svs.Value;
         }
     }
+
+    public class SurveyResponseQuestionData
+    {
+        public int? questionId { get; set; }
+        public string questionShortName { get; set; }
+        public int? questionOptionIdentifier { get; set; }
+        public string value { get; set; }
+        public bool isResonseAComment { get; set; }
+        public string questionOptionTitle { get; set; }
+
+        public bool Equals(SurveyResponseQuestionData srqd)
+        {
+            return questionId               == srqd.questionId
+                && questionShortName        == srqd.questionShortName
+                && questionOptionIdentifier == srqd.questionOptionIdentifier
+                && value                    == srqd.value
+                && isResonseAComment        == srqd.isResonseAComment
+                && questionOptionTitle      == srqd.questionOptionTitle;
+        }
+    }
 }

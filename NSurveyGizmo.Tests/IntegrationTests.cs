@@ -1,4 +1,5 @@
 ﻿using NSurveyGizmo;
+using NSurveyGizmo.Models;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -10,16 +11,13 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace NSurveyGizmo.Tests
 {
     [TestClass]
-    public class IntegrationTests
+    public partial class IntegrationTests
     {
         private static readonly Regex HtmlRegex = new Regex("<.*?>", RegexOptions.Compiled);
 
         [TestMethod]
         public void TestQuestions()
         {
-            var creds = File.ReadAllLines(@"C:\tmp\sg_creds.txt");
-            var apiClient = new ApiClient() { ApiToken = creds[0], ApiTokenSecret = creds[1] };
-
             Func<QuestionOptions[], string> joinOptions = options => options != null && options.Length > 0
                 ? "\noptions :\n" + string.Join(",\n\n", options.Select(o => o.title)) +
                   ",\n"
@@ -49,11 +47,6 @@ namespace NSurveyGizmo.Tests
         [TestMethod]
         public void Create_And_Delete_Survey_And_Campaign_Json()
         {
-            var testStartedAt = DateTime.Now;
-
-            var creds = File.ReadAllLines(@"C:\tmp\sg_creds.txt");
-            var apiClient = new ApiClient() { ApiToken = creds[0], ApiTokenSecret = creds[1] };
-
             // create survey
             var title = "Test Survey " + testStartedAt;
             var surveyId = apiClient.CreateSurvey(title);
@@ -167,13 +160,10 @@ namespace NSurveyGizmo.Tests
             var surveyDeleted = apiClient.DeleteSurvey(surveyId);
             Assert.IsTrue(surveyDeleted);
         }
-        [TestMethod()]
+
+        [TestMethod]
         public void Create_Survey_Test()
         {
-            var testStartedAt = DateTime.Now;
-            var creds = File.ReadAllLines(@"C:\tmp\sg_creds.txt");
-            var apiClient = new ApiClient() { ApiToken = creds[0], ApiTokenSecret = creds[1] };
-
             // create survey
             var title = "Test Survey " + testStartedAt;
             var surveyId = apiClient.CreateSurvey(title);
@@ -186,13 +176,10 @@ namespace NSurveyGizmo.Tests
             Assert.AreEqual(title, survey.title);
             Assert.AreEqual("Launched", survey.status);
         }
-        [TestMethod()]
+
+        [TestMethod]
         public void Create_Questions_Test()
         {
-            var testStartedAt = DateTime.Now;
-            var creds = File.ReadAllLines(@"C:\tmp\sg_creds.txt");
-            var apiClient = new ApiClient() { ApiToken = creds[0], ApiTokenSecret = creds[1] };
-
             // create survey
             var title = "Test Survey " + testStartedAt;
             var surveyId = apiClient.CreateSurvey(title);
@@ -206,10 +193,8 @@ namespace NSurveyGizmo.Tests
             Assert.AreEqual("Launched", survey.status);
 
             // create questions
-            var firstQuestionTitle = new LocalizableString();
-            firstQuestionTitle.English ="Test survey question";
-            var secondQuestionTitle = new LocalizableString();
-            secondQuestionTitle.English = "Test survey question2";
+            var firstQuestionTitle = new LocalizableString("Test survey question");
+            var secondQuestionTitle = new LocalizableString("Test survey question2");
 
             var q1 = apiClient.CreateQuestion(surveyId, 1, "text", firstQuestionTitle, "q1Short", null);
             var q2 = apiClient.CreateQuestion(surveyId, 1, "menu", secondQuestionTitle, "q2Short", null);
@@ -220,13 +205,10 @@ namespace NSurveyGizmo.Tests
             Assert.IsTrue(questions.Any(i => i.id == q1.id));
             Assert.IsTrue(questions.Any(i => i.id == q2.id));
         }
-        [TestMethod()]
+
+        [TestMethod]
         public void Create_QuestionOptions_Test()
         {
-            var testStartedAt = DateTime.Now;
-            var creds = File.ReadAllLines(@"C:\tmp\sg_creds.txt");
-            var apiClient = new ApiClient() { ApiToken = creds[0], ApiTokenSecret = creds[1] };
-
             // create survey
             var title = "Test Survey " + testStartedAt;
             var surveyId = apiClient.CreateSurvey(title);
@@ -240,10 +222,8 @@ namespace NSurveyGizmo.Tests
             Assert.AreEqual("Launched", survey.status);
 
             // create questions
-            var firstQuestionTitle = new LocalizableString();
-            firstQuestionTitle.English = "Test survey question";
-            var secondQuestionTitle = new LocalizableString();
-            secondQuestionTitle.English = "Test survey question2";
+            var firstQuestionTitle = new LocalizableString("Test survey question");
+            var secondQuestionTitle = new LocalizableString("Test survey question2");
 
             var q1 = apiClient.CreateQuestion(surveyId, 1, "text", firstQuestionTitle, "q1Short", null);
             var q2 = apiClient.CreateQuestion(surveyId, 1, "menu", secondQuestionTitle, "q2Short", null);
@@ -258,8 +238,7 @@ namespace NSurveyGizmo.Tests
             int[] opIds = new int[6];
             for (var i = 0; i <= 5; i++)
             {
-                var questionOptionTitle = new LocalizableString();
-                questionOptionTitle.English = "option" + i;
+                var questionOptionTitle = new LocalizableString("option" + i);
 
                 var opId = apiClient.CreateQuestionOption(surveyId, 1, q2.id, null, questionOptionTitle, $"option{i}val");
                 opIds[i] = opId;
@@ -271,15 +250,11 @@ namespace NSurveyGizmo.Tests
                 var getQuestionOp = apiClient.GetQuestionOption(surveyId, q2.id, opIds[i]);
                 Assert.AreEqual(opIds[i], getQuestionOp.id);
             }
-            
         }
-        [TestMethod()]
+
+        [TestMethod]
         public void Create_Contact_Test()
         {
-            var testStartedAt = DateTime.Now;
-            var creds = File.ReadAllLines(@"C:\tmp\sg_creds.txt");
-            var apiClient = new ApiClient() { ApiToken = creds[0], ApiTokenSecret = creds[1] };
-
             // create survey
             var title = "Test Survey " + testStartedAt;
             var surveyId = apiClient.CreateSurvey(title);
@@ -339,13 +314,10 @@ namespace NSurveyGizmo.Tests
             var getContact = apiClient.GetContact(surveyId, campaign, contactId);
             Assert.AreEqual(contactId, getContact.id);
         }
-        [TestMethod()]
+
+        [TestMethod]
         public void Create_ContactList_Test()
         {
-            var testStartedAt = DateTime.Now;
-            var creds = File.ReadAllLines(@"C:\tmp\sg_creds.txt");
-            var apiClient = new ApiClient() { ApiToken = creds[0], ApiTokenSecret = creds[1] };
-
             // create survey
             var title = "Test Survey " + testStartedAt;
             var surveyId = apiClient.CreateSurvey(title);
@@ -424,13 +396,10 @@ namespace NSurveyGizmo.Tests
             Assert.AreEqual(getSurveyContactList.Count, 3);
             
         }
-        [TestMethod()]
+
+        [TestMethod]
         public void Update_Contacts_Test()
         {
-            var testStartedAt = DateTime.Now;
-            var creds = File.ReadAllLines(@"C:\tmp\sg_creds.txt");
-            var apiClient = new ApiClient() { ApiToken = creds[0], ApiTokenSecret = creds[1] };
-
             // create survey
             var title = "Test Survey " + testStartedAt;
             var surveyId = apiClient.CreateSurvey(title);
@@ -496,13 +465,10 @@ namespace NSurveyGizmo.Tests
             Assert.IsTrue(updateSuccess);
             Assert.AreEqual(updatedContact.slastname, fakeContact.slastname);
         }
-        [TestMethod()]
+
+        [TestMethod]
         public void Delete_Contacts_Test()
         {
-            var testStartedAt = DateTime.Now;
-            var creds = File.ReadAllLines(@"C:\tmp\sg_creds.txt");
-            var apiClient = new ApiClient() { ApiToken = creds[0], ApiTokenSecret = creds[1] };
-
             // create survey
             var title = "Test Survey " + testStartedAt;
             var surveyId = apiClient.CreateSurvey(title);
@@ -587,13 +553,9 @@ namespace NSurveyGizmo.Tests
             Assert.AreEqual(getUpdatedSurveyContactList.Count, 2);
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void Create_Survey_Response_Test()
         {
-            var testStartedAt = DateTime.Now;
-            var creds = File.ReadAllLines(@"C:\tmp\sg_creds.txt");
-            var apiClient = new ApiClient() { ApiToken = creds[0], ApiTokenSecret = creds[1] };
-
             // create survey
             var title = "Test Survey " + testStartedAt;
             var surveyId = apiClient.CreateSurvey(title);
@@ -660,7 +622,7 @@ namespace NSurveyGizmo.Tests
             {
                 questionId = q1.id,
                 questionShortName = q1.shortName,
-                qestionOptionIdentifier = null,
+                questionOptionIdentifier = null,
                 value = "Here is my response1",
                 isResonseAComment = false
             };
@@ -668,7 +630,7 @@ namespace NSurveyGizmo.Tests
             {
                 questionId = q1.id,
                 questionShortName = null,
-                qestionOptionIdentifier = null,
+                questionOptionIdentifier = null,
                 value = "Here is my response2",
                 isResonseAComment = false
             };
@@ -676,7 +638,7 @@ namespace NSurveyGizmo.Tests
             {
                 questionId = null,
                 questionShortName = q1.shortName,
-                qestionOptionIdentifier = null,
+                questionOptionIdentifier = null,
                 value = "Here is my respons3",
                 isResonseAComment = false
             };
@@ -684,7 +646,7 @@ namespace NSurveyGizmo.Tests
             {
                 questionId = q2.id,
                 questionShortName = q2.shortName,
-                qestionOptionIdentifier = surveyQuestionOptions[0].id,
+                questionOptionIdentifier = surveyQuestionOptions[0].id,
                 value = surveyQuestionOptions[0].value,
                 isResonseAComment = false
             };
@@ -692,7 +654,7 @@ namespace NSurveyGizmo.Tests
             {
                 questionId = null,
                 questionShortName = q2.shortName,
-                qestionOptionIdentifier = surveyQuestionOptions[1].id,
+                questionOptionIdentifier = surveyQuestionOptions[1].id,
                 value = surveyQuestionOptions[1].value,
                 isResonseAComment = false
             };
@@ -700,7 +662,7 @@ namespace NSurveyGizmo.Tests
             {
                 questionId = q2.id,
                 questionShortName = null,
-                qestionOptionIdentifier = surveyQuestionOptions[2].id,
+                questionOptionIdentifier = surveyQuestionOptions[2].id,
                 value = surveyQuestionOptions[2].value,
                 isResonseAComment = false,
                 questionOptionTitle = "option2"

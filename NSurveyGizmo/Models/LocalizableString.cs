@@ -6,6 +6,8 @@ namespace NSurveyGizmo.Models
     {
         public string English { get; set; }
 
+        public LocalizableString() {}
+
         public LocalizableString(string str)
         {
             English = str;

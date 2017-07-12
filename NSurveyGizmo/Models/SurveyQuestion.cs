@@ -11,6 +11,7 @@ namespace NSurveyGizmo.Models
         public LocalizableString title { get; set; }
         public string _subtype { get; set; }
         public string _type { get; set; }
+        public string shortName { get; set; }
         public string QuestionResponse { get; set; }
         public QuestionProperties properties { get; set; }
         public QuestionOptions[] options { get; set; }
@@ -21,6 +22,7 @@ namespace NSurveyGizmo.Models
                 && surveypage       == sq.surveypage
                 && _subtype         == sq._subtype
                 && _type            == sq._type
+                && shortName        == sq.shortName
                 && QuestionResponse == sq.QuestionResponse
                 && title.Equals(sq.title)
                 && properties.Equals(sq.properties)

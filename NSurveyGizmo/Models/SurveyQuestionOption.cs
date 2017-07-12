@@ -14,6 +14,11 @@ namespace NSurveyGizmo.Models
         public string QuestionResponse { get; set; }
         public string value { get; set; }
 
+        // TODO: Update Equals() method to account for new properties
+        public int id { get; set; }
+        public string _type { get; set; }
+
+
         public bool Equals(SurveyQuestionOption sqo)
         {
             return OptionID         == sqo.OptionID
