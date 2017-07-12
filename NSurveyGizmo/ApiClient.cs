@@ -151,39 +151,40 @@ namespace NSurveyGizmo
             }
             foreach (var sd in questionData)
             {
-              var responseFormatted = FormatSurveyQuestionData(sd.questionId, sd.questionShortName, sd.qestionOptionIdentifier, sd.value, sd.isResonseAComment);
+              var responseFormatted = FormatSurveyQuestionData(sd.questionId, sd.questionShortName, sd.qestionOptionIdentifier, sd.value, sd.isResonseAComment, sd.questionOptionTitle);
                 url.Append(responseFormatted);
             }
             var response = GetData<Result>(url.ToString());
             return response != null && response.Count > 0 ? response[0].id : -1;
         }
-        public StringBuilder FormatSurveyQuestionData(int? questionId, string questionShortname, int? questionOptionIdentifier, string value, bool isResponseComment)
+        public StringBuilder FormatSurveyQuestionData(int? questionId, string questionShortname, int? questionOptionIdentifier, string value, bool isResponseComment, string questionOptionTitle)
         {
             var url = new StringBuilder();
-            
-            if (questionId != null && questionOptionIdentifier != null && !string.IsNullOrEmpty(value))
-            {
-                url.Append($"&data=[{questionId}][{questionOptionIdentifier}]={Uri.EscapeDataString(value)}");
+            url.Append($"&data[{questionId}][{questionOptionIdentifier}]={Uri.EscapeDataString(questionOptionTitle)}");
 
-            }
-            else if (questionId != null && !string.IsNullOrEmpty(value) && !isResponseComment)
-            {
-                url.Append($"&data=[{questionId}][value]={Uri.EscapeDataString(value)}");
+            //if (questionId != null && questionOptionIdentifier != null && !string.IsNullOrEmpty(value))
+            //{
+            //    url.Append($"&data=[{questionId}][{questionOptionIdentifier}]={Uri.EscapeDataString(value)}");
 
-            }
-            else if (questionId != null && !string.IsNullOrEmpty(value) && isResponseComment)
-            {
-                url.Append($"&data=[{questionId}][comment]={Uri.EscapeDataString(value)}");
-            }
-            if (!string.IsNullOrEmpty(questionShortname) && questionOptionIdentifier != null && !string.IsNullOrEmpty(value))
-            {
-                url.Append($"&data=[{Uri.EscapeDataString(questionShortname)}][{questionOptionIdentifier}]={Uri.EscapeDataString(value)}");
+            //}
+            //else if (questionId != null && !string.IsNullOrEmpty(value) && !isResponseComment)
+            //{
+            //    url.Append($"&data[ID][value]=data[{questionId}][value]={Uri.EscapeDataString(value)}");
 
-            }
-            else if (!string.IsNullOrEmpty(questionShortname) && !string.IsNullOrEmpty(value) && !url.ToString().Contains("data"))
-            {
-                url.Append($"&data=[{Uri.EscapeDataString(questionShortname)}][value={Uri.EscapeDataString(value)}]");
-            }
+            //}
+            //else if (questionId != null && !string.IsNullOrEmpty(value) && isResponseComment)
+            //{
+            //    url.Append($"&data=[{questionId}][comment]={Uri.EscapeDataString(value)}");
+            //}
+            //if (!string.IsNullOrEmpty(questionShortname) && questionOptionIdentifier != null && !string.IsNullOrEmpty(value))
+            //{
+            //    url.Append($"&data=[{Uri.EscapeDataString(questionShortname)}][{questionOptionIdentifier}]={Uri.EscapeDataString(value)}");
+
+            //}
+            //else if (!string.IsNullOrEmpty(questionShortname) && !string.IsNullOrEmpty(value) && !url.ToString().Contains("data"))
+            //{
+            //    url.Append($"&data=[{Uri.EscapeDataString(questionShortname)}][value={Uri.EscapeDataString(value)}]");
+            //}
             return url;
         }
         
@@ -422,15 +423,6 @@ namespace NSurveyGizmo
         public List<Contact> GetCampaignContactList(int surveyId, int campaignId)
         {
             return GetData<Contact>($"survey/{surveyId}/surveycampaign/{campaignId}/contact", true, true);
-        }
-        public bool CreateContactList(string listName)
-        {
-            if (!string.IsNullOrEmpty(listName))
-            {
-                var response = GetData<Result>($"contactlist?_method=PUT&listname={Uri.EscapeUriString(listName)}", nonQuery: true);
-                return ResultOk(response);
-            }
-                return false;
         }
 
         public bool UpdateContactList(int contactListId, Contact contact, params string[] customFields)

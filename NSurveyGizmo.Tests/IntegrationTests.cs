@@ -338,8 +338,91 @@ namespace NSurveyGizmo.Tests
             var contactId = apiClient.CreateContact(surveyId, campaign, fakeContact);
             var getContact = apiClient.GetContact(surveyId, campaign, contactId);
             Assert.AreEqual(contactId, getContact.id);
+        }
+        [TestMethod()]
+        public void Create_ContactList_Test()
+        {
+            var testStartedAt = DateTime.Now;
+            var creds = File.ReadAllLines(@"C:\tmp\sg_creds.txt");
+            var apiClient = new ApiClient() { ApiToken = creds[0], ApiTokenSecret = creds[1] };
 
-            // create survey contactList
+            // create survey
+            var title = "Test Survey " + testStartedAt;
+            var surveyId = apiClient.CreateSurvey(title);
+            Assert.IsTrue(surveyId > 0);
+
+            // get survey
+            var survey = apiClient.GetSurvey(surveyId);
+            Assert.IsNotNull(survey);
+            Assert.AreEqual(surveyId, survey.id);
+            Assert.AreEqual(title, survey.title);
+            Assert.AreEqual("Launched", survey.status);
+
+            // create questions
+            var firstQuestionTitle = new LocalizableString();
+            firstQuestionTitle.English = "Test survey question";
+            var secondQuestionTitle = new LocalizableString();
+            secondQuestionTitle.English = "Test survey question2";
+
+            var q1 = apiClient.CreateQuestion(surveyId, 1, "text", firstQuestionTitle, "q1Short", null);
+            var q2 = apiClient.CreateQuestion(surveyId, 1, "menu", secondQuestionTitle, "q2Short", null);
+
+            // get questions
+            var questions = apiClient.GetQuestions(surveyId);
+            Assert.IsNotNull(questions);
+            Assert.IsTrue(questions.Any(i => i.id == q1.id));
+            Assert.IsTrue(questions.Any(i => i.id == q2.id));
+
+            // add question options
+            int[] opIds = new int[6];
+            for (var i = 0; i <= 5; i++)
+            {
+                var questionOptionTitle = new LocalizableString();
+                questionOptionTitle.English = "option" + i;
+
+                var opId = apiClient.CreateQuestionOption(surveyId, 1, q2.id, null, questionOptionTitle, $"option{i}val");
+                opIds[i] = opId;
+            }
+
+            // get question options
+            for (var i = 0; i <= 5; i++)
+            {
+                var getQuestionOp = apiClient.GetQuestionOption(surveyId, q2.id, opIds[i]);
+                Assert.AreEqual(opIds[i], getQuestionOp.id);
+            }
+
+            //create survey campaign
+            var campaign = apiClient.CreateCampaign(surveyId, "testCampaign");
+            Assert.AreEqual(campaign, apiClient.GetCampaign(surveyId, campaign).id);
+
+            // create survey contacts
+            var fakeContact = new Contact();
+            fakeContact.semailaddress = "U_test12345@tntp.org";
+            fakeContact.sfirstname = "John";
+            fakeContact.slastname = "Doe";
+            fakeContact.sorganization = "Test Organization";
+            var contactId = apiClient.CreateContact(surveyId, campaign, fakeContact);
+
+            var fakeContact2 = new Contact();
+            fakeContact2.semailaddress = "U_test4567@tntp.org";
+            fakeContact2.sfirstname = "Jane";
+            fakeContact2.slastname = "Doe";
+            fakeContact2.sorganization = "Test Organization";
+            var contactId2 = apiClient.CreateContact(surveyId, campaign, fakeContact);
+
+            var fakeContact3 = new Contact();
+            fakeContact3.semailaddress = "U_test8910@tntp.org";
+            fakeContact3.sfirstname = "Frank";
+            fakeContact3.slastname = "Sinatra";
+            fakeContact3.sorganization = "Test Organization";
+            var contactId3 = apiClient.CreateContact(surveyId, campaign, fakeContact);
+
+            //get survey contact list
+            var getContact = apiClient.GetContact(surveyId, campaign, contactId);
+            Assert.AreEqual(contactId, getContact.id);
+            var getSurveyContactList = apiClient.GetCampaignContactList(surveyId, campaign);
+            Assert.AreEqual(getSurveyContactList.Count, 3);
+            
         }
         [TestMethod()]
         public void Update_Contacts_Test()
@@ -408,7 +491,7 @@ namespace NSurveyGizmo.Tests
 
             // update survey contact
             fakeContact.slastname = "Smith";
-            var updateSuccess = apiClient.UpdateContact(surveyId, campaign, Convert.ToInt32(contactId), fakeContact);
+            var updateSuccess = apiClient.UpdateContact(surveyId, campaign, contactId, fakeContact);
             var updatedContact = apiClient.GetContact(surveyId, campaign, contactId);
             Assert.IsTrue(updateSuccess);
             Assert.AreEqual(updatedContact.slastname, fakeContact.slastname);
@@ -531,11 +614,12 @@ namespace NSurveyGizmo.Tests
                 questionShortName = null,
                 qestionOptionIdentifier = surveyQuestionOptions[2].id,
                 value = surveyQuestionOptions[2].value,
-                isResonseAComment = false
+                isResonseAComment = false,
+                questionOptionTitle = "option2"
             };
             List<SurveyResponseQuestionData> data = new List<SurveyResponseQuestionData>()
             {
-                r1, r2, r3, r4, r5, r6
+                r6/*, r2, r3, r4, r5, r6*/
             };
 
            var responseId = apiClient.CreateSurveyResponse(surveyId, "complete", data);

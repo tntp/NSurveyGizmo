@@ -255,6 +255,7 @@ namespace NSurveyGizmo
         public int? qestionOptionIdentifier { get; set; }
         public string value { get; set; }
         public bool isResonseAComment { get; set; }
+        public string questionOptionTitle { get; set; }
     }
 
     public class SurveyQuestionMulti
