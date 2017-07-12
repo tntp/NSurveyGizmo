@@ -142,49 +142,52 @@ namespace NSurveyGizmo
         {
             return GetData<SurveyResponse>("survey/" + surveyId + "/surveyresponse", getAllPages, true);
         }
-        public int CreateSurveyResponse(int surveyId, string status, List<SurveyResponseQuestionData> questionData)
+        public SurveyResponse GetResponse(int surveyId, string surveyresponse)
+        {
+            var response = GetData<SurveyResponse>($"survey/{surveyId}/surveyresponse/{Convert.ToInt32(surveyresponse)}");
+            return response != null && response.Count > 0 ? response[0] : null;
+        }
+        public SurveyResponse CreateSurveyResponse(int surveyId, string status, List<SurveyResponseQuestionData> questionData)
         {
             var url = new StringBuilder($"survey/{surveyId}/surveyresponse?_method=PUT");
-            if (!string.IsNullOrEmpty(status))
-            {
-                url.Append($"&status={Uri.EscapeDataString(status)}");
-            }
+            //if (!string.IsNullOrEmpty(status))
+            //{
+            //    url.Append($"&status={Uri.EscapeDataString(status)}"); //breaks the request for some reason
+            //}
             foreach (var sd in questionData)
             {
               var responseFormatted = FormatSurveyQuestionData(sd.questionId, sd.questionShortName, sd.qestionOptionIdentifier, sd.value, sd.isResonseAComment, sd.questionOptionTitle);
-                url.Append(responseFormatted);
+              url.Append(responseFormatted);
             }
-            var response = GetData<Result>(url.ToString());
-            return response != null && response.Count > 0 ? response[0].id : -1;
+            var response = GetData<SurveyResponse>(url.ToString());
+            return response != null && response.Count > 0 ? response[0] : null;
         }
         public StringBuilder FormatSurveyQuestionData(int? questionId, string questionShortname, int? questionOptionIdentifier, string value, bool isResponseComment, string questionOptionTitle)
         {
             var url = new StringBuilder();
-            url.Append($"&data[{questionId}][{questionOptionIdentifier}]={Uri.EscapeDataString(questionOptionTitle)}");
+            if (questionId != null && questionOptionIdentifier != null && !string.IsNullOrEmpty(value))
+            {
+                url.Append($"&data[{questionId}][{questionOptionIdentifier}]={Uri.EscapeDataString(value)}");
 
-            //if (questionId != null && questionOptionIdentifier != null && !string.IsNullOrEmpty(value))
-            //{
-            //    url.Append($"&data=[{questionId}][{questionOptionIdentifier}]={Uri.EscapeDataString(value)}");
+            }
+            else if (questionId != null && !string.IsNullOrEmpty(value) && !isResponseComment)
+            {
+                url.Append($"&data[{questionId}][value]={Uri.EscapeDataString(value)}");
 
-            //}
-            //else if (questionId != null && !string.IsNullOrEmpty(value) && !isResponseComment)
-            //{
-            //    url.Append($"&data[ID][value]=data[{questionId}][value]={Uri.EscapeDataString(value)}");
+            }
+            else if (questionId != null && !string.IsNullOrEmpty(value) && isResponseComment)
+            {
+                url.Append($"&data[{questionId}][comment]={Uri.EscapeDataString(value)}");
+            }
+            if (!string.IsNullOrEmpty(questionShortname) && questionOptionIdentifier != null && !string.IsNullOrEmpty(value))
+            {
+                url.Append($"&data[{Uri.EscapeDataString(questionShortname)}][{questionOptionIdentifier}]={Uri.EscapeDataString(value)}");
 
-            //}
-            //else if (questionId != null && !string.IsNullOrEmpty(value) && isResponseComment)
-            //{
-            //    url.Append($"&data=[{questionId}][comment]={Uri.EscapeDataString(value)}");
-            //}
-            //if (!string.IsNullOrEmpty(questionShortname) && questionOptionIdentifier != null && !string.IsNullOrEmpty(value))
-            //{
-            //    url.Append($"&data=[{Uri.EscapeDataString(questionShortname)}][{questionOptionIdentifier}]={Uri.EscapeDataString(value)}");
-
-            //}
-            //else if (!string.IsNullOrEmpty(questionShortname) && !string.IsNullOrEmpty(value) && !url.ToString().Contains("data"))
-            //{
-            //    url.Append($"&data=[{Uri.EscapeDataString(questionShortname)}][value={Uri.EscapeDataString(value)}]");
-            //}
+            }
+            else if (!string.IsNullOrEmpty(questionShortname) && !string.IsNullOrEmpty(value) && !url.ToString().Contains("data"))
+            {
+                url.Append($"&data[{Uri.EscapeDataString(questionShortname)}][value={Uri.EscapeDataString(value)}]");
+            }
             return url;
         }
         
