@@ -267,10 +267,8 @@ namespace NSurveyGizmo.Tests
             Assert.AreEqual("Launched", survey.status);
 
             // create questions
-            var firstQuestionTitle = new LocalizableString();
-            firstQuestionTitle.English = "Test survey question";
-            var secondQuestionTitle = new LocalizableString();
-            secondQuestionTitle.English = "Test survey question2";
+            var firstQuestionTitle = new LocalizableString("Test survey question");
+            var secondQuestionTitle = new LocalizableString("Test survey question2");
 
             var q1 = apiClient.CreateQuestion(surveyId, 1, "text", firstQuestionTitle, "q1Short", null);
             var q2 = apiClient.CreateQuestion(surveyId, 1, "menu", secondQuestionTitle, "q2Short", null);
@@ -285,8 +283,7 @@ namespace NSurveyGizmo.Tests
             int[] opIds = new int[6];
             for (var i = 0; i <= 5; i++)
             {
-                var questionOptionTitle = new LocalizableString();
-                questionOptionTitle.English = "option" + i;
+                var questionOptionTitle = new LocalizableString("option" + i);
 
                 var opId = apiClient.CreateQuestionOption(surveyId, 1, q2.id, null, questionOptionTitle, $"option{i}val");
                 opIds[i] = opId;
@@ -331,10 +328,8 @@ namespace NSurveyGizmo.Tests
             Assert.AreEqual("Launched", survey.status);
 
             // create questions
-            var firstQuestionTitle = new LocalizableString();
-            firstQuestionTitle.English = "Test survey question";
-            var secondQuestionTitle = new LocalizableString();
-            secondQuestionTitle.English = "Test survey question2";
+            var firstQuestionTitle = new LocalizableString("Test survey question");
+            var secondQuestionTitle = new LocalizableString("Test survey question2");
 
             var q1 = apiClient.CreateQuestion(surveyId, 1, "text", firstQuestionTitle, "q1Short", null);
             var q2 = apiClient.CreateQuestion(surveyId, 1, "menu", secondQuestionTitle, "q2Short", null);
@@ -349,8 +344,7 @@ namespace NSurveyGizmo.Tests
             int[] opIds = new int[6];
             for (var i = 0; i <= 5; i++)
             {
-                var questionOptionTitle = new LocalizableString();
-                questionOptionTitle.English = "option" + i;
+                var questionOptionTitle = new LocalizableString("option" + i);
 
                 var opId = apiClient.CreateQuestionOption(surveyId, 1, q2.id, null, questionOptionTitle, $"option{i}val");
                 opIds[i] = opId;
@@ -412,10 +406,8 @@ namespace NSurveyGizmo.Tests
             Assert.AreEqual("Launched", survey.status);
 
             // create questions
-            var firstQuestionTitle = new LocalizableString();
-            firstQuestionTitle.English = "Test survey question";
-            var secondQuestionTitle = new LocalizableString();
-            secondQuestionTitle.English = "Test survey question2";
+            var firstQuestionTitle = new LocalizableString("Test survey question");
+            var secondQuestionTitle = new LocalizableString("Test survey question2");
 
             var q1 = apiClient.CreateQuestion(surveyId, 1, "text", firstQuestionTitle, "q1Short", null);
             var q2 = apiClient.CreateQuestion(surveyId, 1, "menu", secondQuestionTitle, "q2Short", null);
@@ -430,8 +422,7 @@ namespace NSurveyGizmo.Tests
             int[] opIds = new int[6];
             for (var i = 0; i <= 5; i++)
             {
-                var questionOptionTitle = new LocalizableString();
-                questionOptionTitle.English = "option" + i;
+                var questionOptionTitle = new LocalizableString("option" + i);
 
                 var opId = apiClient.CreateQuestionOption(surveyId, 1, q2.id, null, questionOptionTitle, $"option{i}val");
                 opIds[i] = opId;
@@ -480,10 +471,8 @@ namespace NSurveyGizmo.Tests
             Assert.AreEqual("Launched", survey.status);
 
             // create questions
-            var firstQuestionTitle = new LocalizableString();
-            firstQuestionTitle.English = "Test survey question";
-            var secondQuestionTitle = new LocalizableString();
-            secondQuestionTitle.English = "Test survey question2";
+            var firstQuestionTitle = new LocalizableString("Test survey question");
+            var secondQuestionTitle = new LocalizableString("Test survey question2");
 
             var q1 = apiClient.CreateQuestion(surveyId, 1, "text", firstQuestionTitle, "q1Short", null);
             var q2 = apiClient.CreateQuestion(surveyId, 1, "menu", secondQuestionTitle, "q2Short", null);
@@ -498,8 +487,7 @@ namespace NSurveyGizmo.Tests
             int[] opIds = new int[6];
             for (var i = 0; i <= 5; i++)
             {
-                var questionOptionTitle = new LocalizableString();
-                questionOptionTitle.English = "option" + i;
+                var questionOptionTitle = new LocalizableString("option" + i);
 
                 var opId = apiClient.CreateQuestionOption(surveyId, 1, q2.id, null, questionOptionTitle, $"option{i}val");
                 opIds[i] = opId;
@@ -567,16 +555,11 @@ namespace NSurveyGizmo.Tests
             Assert.AreEqual("Launched", survey.status);
 
             // create questions
-            var firstQuestionTitle = new LocalizableString();
-            firstQuestionTitle.English = "Test survey question text field";
-            var secondQuestionTitle = new LocalizableString();
-            secondQuestionTitle.English = "Test survey question2 dropdown";
-            var thirdQuestionTitle = new LocalizableString();
-            secondQuestionTitle.English = "Test survey question3 comment";
-            var fourthQuestionTitle = new LocalizableString();
-            secondQuestionTitle.English = "Test survey question4 checkbox";
-            var fifthQuestionTitle = new LocalizableString();
-            secondQuestionTitle.English = "Test survey question5 file";
+            var firstQuestionTitle = new LocalizableString("Test survey question text field");
+            var secondQuestionTitle = new LocalizableString("Test survey question2 dropdown");
+            var thirdQuestionTitle = new LocalizableString("Test survey question3 comment");
+            var fourthQuestionTitle = new LocalizableString("Test survey question4 checkbox");
+            var fifthQuestionTitle = new LocalizableString("Test survey question5 file");
 
             var q1 = apiClient.CreateQuestion(surveyId, 1, "text", firstQuestionTitle, "q1Short", null);
             var q2 = apiClient.CreateQuestion(surveyId, 1, "menu", secondQuestionTitle, "q2Short", null);
@@ -598,8 +581,7 @@ namespace NSurveyGizmo.Tests
             for (var i = 0; i <= 5; i++)
             {
                 var questionOp = new SurveyQuestionOption();
-                var questionOptionTitle = new LocalizableString();
-                questionOptionTitle.English = "option" + i;
+                var questionOptionTitle = new LocalizableString("option" + i);
                 questionOp.title = questionOptionTitle;
                 questionOp.value = $"option{i}val";
 
@@ -614,20 +596,15 @@ namespace NSurveyGizmo.Tests
             }
 
             //create quesiton options for checkbox
-            var yesNoOption = new LocalizableString();
-            yesNoOption.English = "Yes";
-            var yesNoOption2 = new LocalizableString();
-            yesNoOption2.English = "No";
+            var yesNoOption = new LocalizableString("Yes");
+            var yesNoOption2 = new LocalizableString("No");
             var q4Option1 = apiClient.CreateQuestionOption(surveyId, 1, q4.id, null, yesNoOption, yesNoOption.English);
             var q4Option2 = apiClient.CreateQuestionOption(surveyId, 1, q4.id, null, yesNoOption2, yesNoOption2.English);
 
             //create quesiton options for question5
-            var q5yesNoOption = new LocalizableString();
-            q5yesNoOption.English = "Yes";
-            var q5yesNoOption2 = new LocalizableString();
-            q5yesNoOption2.English = "No";
-            var q5yesNoOption3 = new LocalizableString();
-            q5yesNoOption3.English = "Both";
+            var q5yesNoOption = new LocalizableString("Yes");
+            var q5yesNoOption2 = new LocalizableString("No");
+            var q5yesNoOption3 = new LocalizableString("Both");
             var q5Option1 = apiClient.CreateQuestionOption(surveyId, 1, q5.id, null, q5yesNoOption, q5yesNoOption.English);
             var q5Option2 = apiClient.CreateQuestionOption(surveyId, 1, q5.id, null, q5yesNoOption2, q5yesNoOption2.English);
             var q5Option3 = apiClient.CreateQuestionOption(surveyId, 1, q5.id, null, q5yesNoOption3, q5yesNoOption3.English);
@@ -715,6 +692,55 @@ namespace NSurveyGizmo.Tests
             Assert.IsTrue(allResponses.Any(i => i.id == response.id));
             Assert.AreEqual(allResponses[0].AllQuestions.Count, 5);
             //Assert.IsTrue(allResponses.Contains(response));
+        }
+        [TestMethod()]
+        public void Update_Qcode_test()
+        {
+            // create survey
+            var title = "Test Survey " + testStartedAt;
+            var surveyId = apiClient.CreateSurvey(title);
+            Assert.IsTrue(surveyId > 0);
+
+            // get survey
+            var survey = apiClient.GetSurvey(surveyId);
+            Assert.IsNotNull(survey);
+            Assert.AreEqual(surveyId, survey.id);
+            Assert.AreEqual(title, survey.title);
+            Assert.AreEqual("Launched", survey.status);
+
+            // create questions
+            var firstQuestionTitle = new LocalizableString("Test survey question text field");
+            var secondQuestionTitle = new LocalizableString("Test survey question2 dropdown");
+            var thirdQuestionTitle = new LocalizableString("Test survey question3 comment");
+            var fourthQuestionTitle = new LocalizableString("Test survey question4 checkbox");
+            var fifthQuestionTitle = new LocalizableString("Test survey question5 file");
+
+            var descrip5 = new QuestionProperties();
+            descrip5.question_description = new LocalizableString();
+            descrip5.question_description.English = "Q5";
+
+            var q1 = apiClient.CreateQuestion(surveyId, 1, "text", firstQuestionTitle, "q1Short", null);
+            var q2 = apiClient.CreateQuestion(surveyId, 1, "menu", secondQuestionTitle, "q2Short", null);
+            var q3 = apiClient.CreateQuestion(surveyId, 1, "essay", thirdQuestionTitle, "q3Short", null);
+            var q4 = apiClient.CreateQuestion(surveyId, 1, "checkbox", fourthQuestionTitle, "q4Short", null);
+            var q5 = apiClient.CreateQuestion(surveyId, 1, "menu", fifthQuestionTitle, "q5Short", descrip5);
+
+            // get questions
+            var questions = apiClient.GetQuestions(surveyId);
+            Assert.IsNotNull(questions);
+            Assert.IsTrue(questions.Any(i => i.id == q1.id));
+            Assert.IsTrue(questions.Any(i => i.id == q2.id));
+            Assert.IsTrue(questions.Any(i => i.id == q3.id));
+            Assert.IsTrue(questions.Any(i => i.id == q4.id));
+            Assert.IsTrue(questions.Any(i => i.id == q5.id));
+
+            var updateQCode = apiClient.UpdateQcodeOfSurveyQuestion(surveyId, q5.id, "UpdatedQ5");
+            Assert.IsTrue(updateQCode);
+
+            var updatedQuestions = apiClient.GetQuestions(surveyId);
+            var updatedqcodeq5 = updatedQuestions.Where(i => i.id == q5.id)
+                .Select(i => i.properties.question_description.English).First();
+            Assert.AreEqual(updatedqcodeq5, "<span style=\\\"font-size:0px;\\\">UpdatedQ5</span>");
         }
     }
 }

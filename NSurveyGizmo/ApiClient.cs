@@ -46,7 +46,7 @@ namespace NSurveyGizmo
                 url.Append($"&properties[hidden]={props.hidden}");
                 url.Append($"&properties[option_sort]={props.option_sort}");
                 url.Append($"&properties[orientation]={props.orientation}");
-                url.Append($"&=description{Uri.EscapeDataString(props.question_description.English)}");
+                url.Append($"&properties[question_description][English]={Uri.EscapeUriString($"<span style=\"font-size:0px;\">{props.question_description.English}</span>")}");
             }
             var response = GetData<SurveyQuestion>(url.ToString());
             return response != null && response.Count > 0 ? response[0] : null;
@@ -116,7 +116,7 @@ namespace NSurveyGizmo
                     option.title, option.value);
             }
         }
-        public bool UpdateQuestionOption(int surveyId, int optionId, int questionId, int? orderAfterId, string title, string value)
+        public bool UpdateSurveyOption(int surveyId, int optionId, int questionId, int? orderAfterId, string title, string value)
         {
             var url = new StringBuilder($"survey/{surveyId}/surveyquestion/{questionId}/surveyoption/{optionId}?_method=POST");
             if (!string.IsNullOrEmpty(title))
