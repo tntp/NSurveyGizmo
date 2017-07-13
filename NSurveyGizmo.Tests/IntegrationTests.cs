@@ -6,7 +6,8 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using NSurveyGizmo.Models;
+using NSurveyGizmo.Models.v5;
+using NSurveyGizmo.v5;
 
 namespace NSurveyGizmo.Tests
 {
@@ -23,7 +24,7 @@ namespace NSurveyGizmo.Tests
                   ",\n"
                 : "";
 
-            var questions = apiClient.GetQuestions(2687802).Where(q => q._type == "SurveyQuestion").ToList();
+            var questions = apiClient.GetQuestions(2687802).Where(q => q.type == "SurveyQuestion").ToList();
 
             var gizmoQuestions = questions.Select(q => new
             {
@@ -33,7 +34,7 @@ namespace NSurveyGizmo.Tests
                     q.properties?.question_description != null
                         ? HtmlRegex.Replace(q.properties.question_description.English, string.Empty)
                         : "",
-                AnswerFormat = q._type ?? ""
+                AnswerFormat = q.type ?? ""
             }).ToList();
 
             foreach (var gizmoQuestion in gizmoQuestions)
@@ -74,7 +75,7 @@ namespace NSurveyGizmo.Tests
             // check if the campaign is returned in the list of all campaigns
             var campaigns = apiClient.GetCampaigns(surveyId);
             Assert.IsNotNull(campaigns);
-            campaigns = campaigns.Where(c => c._subtype == "email").ToList();
+            campaigns = campaigns.Where(c => c.subtype == "email").ToList();
             // 2 email campaigns expected
             Assert.AreEqual(2, campaigns.Count);
             Assert.IsTrue(campaigns.Any(c => c.status == "Active" && c.name == campaignName && c.id == campaignId));
@@ -124,10 +125,10 @@ namespace NSurveyGizmo.Tests
             // create contact
             var datetime = testStartedAt.ToString("yyyyMMddHHmmss");
             var fakeContact = new Contact();
-            fakeContact.semailaddress = "U_test12345@tntp.org";
-            fakeContact.sfirstname = "John";
-            fakeContact.slastname = "Doe";
-            fakeContact.sorganization = "Test Organization";
+            fakeContact.email_address = "U_test12345@tntp.org";
+            fakeContact.first_name = "John";
+            fakeContact.last_name = "Doe";
+            fakeContact.organization = "Test Organization";
             var contactId = apiClient.CreateContact(surveyId, campaignId, fakeContact);
             Assert.IsTrue(contactId > 0);
            
@@ -137,7 +138,7 @@ namespace NSurveyGizmo.Tests
             Assert.IsTrue(campaignContactList.Any(c => c.id == contactId));
 
             // update contact
-            fakeContact.slastname = "Smith";
+            fakeContact.last_name = "Smith";
             var updated = apiClient.UpdateContact(surveyId, campaignId, Convert.ToInt32(contactId), fakeContact);
             Assert.IsTrue(updated);
 
@@ -348,17 +349,17 @@ namespace NSurveyGizmo.Tests
 
             // create survey contact
             var fakeContact = new Contact();
-            fakeContact.semailaddress = "U_test12345@tntp.org";
-            fakeContact.sfirstname = "John";
-            fakeContact.slastname = "Doe";
-            fakeContact.sorganization = "Test Organization";
+            fakeContact.email_address = "U_test12345@tntp.org";
+            fakeContact.first_name = "John";
+            fakeContact.last_name = "Doe";
+            fakeContact.organization = "Test Organization";
             var fakeContact2 = new Contact();
-            fakeContact2.semailaddress = "U_test6789@tntp.org";
-            fakeContact2.sfirstname = "Jane";
-            fakeContact2.slastname = "Doe";
-            fakeContact2.sorganization = "Test Organization";
+            fakeContact2.email_address = "U_test6789@tntp.org";
+            fakeContact2.first_name = "Jane";
+            fakeContact2.last_name = "Doe";
+            fakeContact2.organization = "Test Organization";
             var johnsContactId = apiClient.CreateContact(surveyId, campaign, fakeContact);
-            var janesContactId = apiClient.CreateContact(surveyId, campaign, fakeContact2.semailaddress, fakeContact2.sfirstname, fakeContact2.slastname, fakeContact2.sorganization, null);
+            var janesContactId = apiClient.CreateContact(surveyId, campaign, fakeContact2.email_address, fakeContact2.first_name, fakeContact2.last_name, fakeContact2.organization, null);
             var getContact = apiClient.GetContact(surveyId, campaign, johnsContactId);
             var getContact2 = apiClient.GetContact(surveyId, campaign, janesContactId);
             var campaignContact = apiClient.GetCampaignContactList(surveyId, campaign);
@@ -418,24 +419,24 @@ namespace NSurveyGizmo.Tests
 
             // create survey contacts
             var fakeContact = new Contact();
-            fakeContact.semailaddress = "U_test12345@tntp.org";
-            fakeContact.sfirstname = "John";
-            fakeContact.slastname = "Doe";
-            fakeContact.sorganization = "Test Organization";
+            fakeContact.email_address = "U_test12345@tntp.org";
+            fakeContact.first_name = "John";
+            fakeContact.last_name = "Doe";
+            fakeContact.organization = "Test Organization";
             var contactId = apiClient.CreateContact(surveyId, campaign, fakeContact);
 
             var fakeContact2 = new Contact();
-            fakeContact2.semailaddress = "U_test4567@tntp.org";
-            fakeContact2.sfirstname = "Jane";
-            fakeContact2.slastname = "Doe";
-            fakeContact2.sorganization = "Test Organization";
+            fakeContact2.email_address = "U_test4567@tntp.org";
+            fakeContact2.first_name = "Jane";
+            fakeContact2.last_name = "Doe";
+            fakeContact2.organization = "Test Organization";
             var contactId2 = apiClient.CreateContact(surveyId, campaign, fakeContact);
 
             var fakeContact3 = new Contact();
-            fakeContact3.semailaddress = "U_test8910@tntp.org";
-            fakeContact3.sfirstname = "Frank";
-            fakeContact3.slastname = "Sinatra";
-            fakeContact3.sorganization = "Test Organization";
+            fakeContact3.email_address = "U_test8910@tntp.org";
+            fakeContact3.first_name = "Frank";
+            fakeContact3.last_name = "Sinatra";
+            fakeContact3.organization = "Test Organization";
             var contactId3 = apiClient.CreateContact(surveyId, campaign, fakeContact);
 
             //get survey contact list
@@ -496,24 +497,24 @@ namespace NSurveyGizmo.Tests
 
             // create survey contact
             var fakeContact = new Contact();
-            fakeContact.semailaddress = "U_test12345@tntp.org";
-            fakeContact.sfirstname = "John";
-            fakeContact.slastname = "Doe";
-            fakeContact.sorganization = "Test Organization";
+            fakeContact.email_address = "U_test12345@tntp.org";
+            fakeContact.first_name = "John";
+            fakeContact.last_name = "Doe";
+            fakeContact.organization = "Test Organization";
             var contactId = apiClient.CreateContact(surveyId, campaign, fakeContact);
             Assert.AreEqual(contactId, apiClient.GetContact(surveyId, campaign, contactId).id);
 
             // update survey contact
-            fakeContact.slastname = "Smith";
+            fakeContact.last_name = "Smith";
             var updateSuccess = apiClient.UpdateContact(surveyId, campaign, contactId, fakeContact);
             var updatedContact = apiClient.GetContact(surveyId, campaign, contactId);
             Assert.IsTrue(updateSuccess);
-            Assert.AreEqual(updatedContact.slastname, "Smith");
-            fakeContact.slastname = "Smithers";
-            var updateSuccess2 = apiClient.UpdateContact(surveyId, campaign, contactId, fakeContact.semailaddress, fakeContact.sfirstname, fakeContact.slastname, fakeContact.sorganization, null);
+            Assert.AreEqual(updatedContact.last_name, "Smith");
+            fakeContact.last_name = "Smithers";
+            var updateSuccess2 = apiClient.UpdateContact(surveyId, campaign, contactId, fakeContact.email_address, fakeContact.first_name, fakeContact.last_name, fakeContact.organization, null);
             var updatedContact2 = apiClient.GetContact(surveyId, campaign, contactId);
             Assert.IsTrue(updateSuccess2);
-            Assert.AreEqual(updatedContact2.slastname, "Smithers");
+            Assert.AreEqual(updatedContact2.last_name, "Smithers");
         }
         [TestMethod()]
         public void Delete_Contacts_Test()
@@ -565,24 +566,24 @@ namespace NSurveyGizmo.Tests
 
             // create survey contacts
             var fakeContact = new Contact();
-            fakeContact.semailaddress = "U_test12345@tntp.org";
-            fakeContact.sfirstname = "John";
-            fakeContact.slastname = "Doe";
-            fakeContact.sorganization = "Test Organization";
+            fakeContact.email_address = "U_test12345@tntp.org";
+            fakeContact.first_name = "John";
+            fakeContact.last_name = "Doe";
+            fakeContact.organization = "Test Organization";
             var contactId = apiClient.CreateContact(surveyId, campaign, fakeContact);
 
             var fakeContact2 = new Contact();
-            fakeContact2.semailaddress = "U_test4567@tntp.org";
-            fakeContact2.sfirstname = "Jane";
-            fakeContact2.slastname = "Doe";
-            fakeContact2.sorganization = "Test Organization";
+            fakeContact2.email_address = "U_test4567@tntp.org";
+            fakeContact2.first_name = "Jane";
+            fakeContact2.last_name = "Doe";
+            fakeContact2.organization = "Test Organization";
             var contactId2 = apiClient.CreateContact(surveyId, campaign, fakeContact);
 
             var fakeContact3 = new Contact();
-            fakeContact3.semailaddress = "U_test8910@tntp.org";
-            fakeContact3.sfirstname = "Frank";
-            fakeContact3.slastname = "Sinatra";
-            fakeContact3.sorganization = "Test Organization";
+            fakeContact3.email_address = "U_test8910@tntp.org";
+            fakeContact3.first_name = "Frank";
+            fakeContact3.last_name = "Sinatra";
+            fakeContact3.organization = "Test Organization";
             var contactId3 = apiClient.CreateContact(surveyId, campaign, fakeContact);
 
             //get survey contact list
@@ -674,10 +675,10 @@ namespace NSurveyGizmo.Tests
 
             // create survey contact
             var fakeContact = new Contact();
-            fakeContact.semailaddress = "U_test12345@tntp.org";
-            fakeContact.sfirstname = "John";
-            fakeContact.slastname = "Doe";
-            fakeContact.sorganization = "Test Organization";
+            fakeContact.email_address = "U_test12345@tntp.org";
+            fakeContact.first_name = "John";
+            fakeContact.last_name = "Doe";
+            fakeContact.organization = "Test Organization";
             var contactId = apiClient.CreateContact(surveyId, campaign, fakeContact);
             Assert.AreEqual(contactId, apiClient.GetContact(surveyId, campaign, contactId).id);
 
@@ -688,7 +689,7 @@ namespace NSurveyGizmo.Tests
                 questionShortName = q1.shortName,
                 questionOptionIdentifier = null,
                 value = "Here is my response1",
-                isResonseAComment = false
+                isResponseAComment = false
             };
             var r2 = new SurveyResponseQuestionData()//comments dont count as questions
             {
@@ -696,7 +697,7 @@ namespace NSurveyGizmo.Tests
                 questionShortName = q1.shortName,
                 questionOptionIdentifier = null,
                 value = "Here is my comment for response 1",
-                isResonseAComment = true
+                isResponseAComment = true
             };
             var r3 = new SurveyResponseQuestionData()
             {
@@ -704,7 +705,7 @@ namespace NSurveyGizmo.Tests
                 questionShortName = q2.shortName,
                 questionOptionIdentifier = surveyQuestionOptions[0].id,
                 value = surveyQuestionOptions[0].value,
-                isResonseAComment = false
+                isResponseAComment = false
             };
             var r4 = new SurveyResponseQuestionData()
             {
@@ -712,7 +713,7 @@ namespace NSurveyGizmo.Tests
                 questionShortName = q3.shortName,
                 questionOptionIdentifier = null,
                 value = "Here is my respons3",
-                isResonseAComment = false
+                isResponseAComment = false
             };
             var r5 = new SurveyResponseQuestionData()
             {
@@ -720,7 +721,7 @@ namespace NSurveyGizmo.Tests
                 questionShortName = q4.shortName,
                 questionOptionIdentifier = q4Option1,
                 value = "Yes",
-                isResonseAComment = false
+                isResponseAComment = false
             };
             var r6 = new SurveyResponseQuestionData()
             {
@@ -728,7 +729,7 @@ namespace NSurveyGizmo.Tests
                 questionShortName = q5.shortName,
                 questionOptionIdentifier = q5Option3,
                 value = "Both",
-                isResonseAComment = false
+                isResponseAComment = false
             };
           
             List<SurveyResponseQuestionData> data = new List<SurveyResponseQuestionData>()
@@ -775,7 +776,7 @@ namespace NSurveyGizmo.Tests
             var fifthQuestionTitle = new LocalizableString("Test survey question5 file");
 
             var descrip5 = new QuestionProperties();
-            descrip5.question_description = new LocalizableString();
+            descrip5.question_description = new Models.LocalizableString();
             descrip5.question_description.English = "Q5";
 
             var q1 = apiClient.CreateQuestion(surveyId, 1, "text", firstQuestionTitle, "q1Short", null);

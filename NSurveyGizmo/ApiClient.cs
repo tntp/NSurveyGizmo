@@ -5,7 +5,8 @@ using System.Net;
 using System.Text;
 using NLog;
 using Polly;
-using NSurveyGizmo.Models;
+using NSurveyGizmo.Models.v5;
+using NSurveyGizmo.v5;
 
 namespace NSurveyGizmo
 {
@@ -13,7 +14,7 @@ namespace NSurveyGizmo
     {
         public IThrottledWebRequest ThrottledWebRequest = new ThrottledWebRequest();
         public int? BatchSize = null;
-        public string BaseServiceUrl = "https://restapi.surveygizmo.com/v4/";
+        public string BaseServiceUrl = "https://restapi.surveygizmo.com/v5/";
         public string ApiToken { get; set; }
         public string ApiTokenSecret { get; set; }
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
@@ -111,7 +112,7 @@ namespace NSurveyGizmo
             //}
             foreach (var sd in questionData)
             {
-              var responseFormatted = FormatSurveyQuestionData(sd.questionId, sd.questionShortName, sd.questionOptionIdentifier, sd.value, sd.isResonseAComment, sd.questionOptionTitle);
+              var responseFormatted = FormatSurveyQuestionData(sd.questionId, sd.questionShortName, sd.questionOptionIdentifier, sd.value, sd.isResponseAComment, sd.questionOptionTitle);
               url.Append(responseFormatted);
             }
             var response = GetData<SurveyResponse>(url.ToString());
@@ -279,9 +280,9 @@ namespace NSurveyGizmo
         public Contact GetContact(int surveyId, int campaignId, int contactId)
         {
             var url =
-                new StringBuilder($"survey/{surveyId}/surveycampaign/{campaignId}/contact/{contactId}");
+                new StringBuilder($"survey/{surveyId}/surveycampaign/{campaignId}/surveycontact/{contactId}");
             var response = GetData<Contact>(url.ToString());
-            return response[0];
+            return response != null && response.Count > 0 ? response[0] : null;
         }
         public int CreateContact(int surveyId, int campaignId, string emailAddress = null,
             string firstName = null, string lastName = null, string organization = null, params string[] customFields)
@@ -318,13 +319,13 @@ namespace NSurveyGizmo
 
             var url =
                 BuildUrl(
-                    $"survey/{surveyId}/surveycampaign/{campaignId}/contact/{strContactId}?_method={method}",
+                    $"survey/{surveyId}/surveycampaign/{campaignId}/surveycontact/{strContactId}?_method={method}",
                     new Dictionary<string, string>()
                     {
-                        {"semailaddress", contact.semailaddress},
-                        {"sfirstname", contact.sfirstname},
-                        {"slastname", contact.slastname},
-                        {"sorganization", contact.sorganization}
+                        {"email_address", contact.email_address},
+                        {"first_name", contact.first_name},
+                        {"slastnamelast_name", contact.last_name},
+                        {"organization", contact.organization}
                     });
             if (customFields != null)
             {
@@ -332,7 +333,7 @@ namespace NSurveyGizmo
                 {
                     if (customFields[i] != null)
                     {
-                        url.Append("&scustomfield" + (i + 1) + "=" + Uri.EscapeDataString(customFields[i]));
+                        url.Append("&customfield" + (i + 1) + "=" + Uri.EscapeDataString(customFields[i]));
                     }
                 }
             }
@@ -346,14 +347,14 @@ namespace NSurveyGizmo
 
             var url =
                 BuildUrl(
-                    "survey/" + surveyId + "/surveycampaign/" + campaignId + "/contact/" + strContactId + "?_method=" +
+                    "survey/" + surveyId + "/surveycampaign/" + campaignId + "/surveycontact/" + strContactId + "?_method=" +
                     method,
                     new Dictionary<string, string>()
                     {
-                        {"semailaddress", emailAddress},
-                        {"sfirstname", firstName},
-                        {"slastname", lastName},
-                        {"sorganization", organization}
+                        {"email_address", emailAddress},
+                        {"first_name", firstName},
+                        {"last_name", lastName},
+                        {"organization", organization}
                     });
             if (customFields != null)
             {
@@ -361,7 +362,7 @@ namespace NSurveyGizmo
                 {
                     if (customFields[i] != null)
                     {
-                        url.Append("&scustomfield" + (i + 1) + "=" + Uri.EscapeDataString(customFields[i]));
+                        url.Append("&customfield" + (i + 1) + "=" + Uri.EscapeDataString(customFields[i]));
                     }
                 }
             }
@@ -372,7 +373,7 @@ namespace NSurveyGizmo
 
         public bool DeleteContact(int surveyId, int campaignId, int contactId)
         {
-            var results = GetData<Result>($"survey/{surveyId}/surveycampaign/{campaignId}/contact/{contactId}?_method=DELETE", nonQuery: true);
+            var results = GetData<Result>($"survey/{surveyId}/surveycampaign/{campaignId}/surveycontact/{contactId}?_method=DELETE", nonQuery: true);
             return ResultOk(results);
         }
         #endregion
@@ -380,7 +381,7 @@ namespace NSurveyGizmo
         #region contact lists
         public List<Contact> GetCampaignContactList(int surveyId, int campaignId)
         {
-            return GetData<Contact>($"survey/{surveyId}/surveycampaign/{campaignId}/contact", true, true);
+            return GetData<Contact>($"survey/{surveyId}/surveycampaign/{campaignId}/surveycontact", true, true);
         }
         #endregion
 

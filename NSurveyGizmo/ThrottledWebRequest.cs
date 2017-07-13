@@ -97,7 +97,6 @@ namespace NSurveyGizmo
             using (var sr = new StreamReader(responseStream))
             {
                 var result = sr.ReadToEnd();
-               
                 return JsonConvert.DeserializeObject<T>(result);
             }
 

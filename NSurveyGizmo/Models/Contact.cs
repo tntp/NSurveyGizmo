@@ -13,8 +13,7 @@ namespace NSurveyGizmo.Models
         public string scustomfield9 { get; set; }
         public string scustomfield10 { get; set; }
         public string estatus { get; set; }
-
-        // TODO: Update Equals() method to account for new properties
+      
         public string semailaddress { get; set; }
         public string sfirstname { get; set; }
         public string slastname { get; set; }

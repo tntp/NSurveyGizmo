@@ -1,25 +1,24 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using Newtonsoft.Json;
+using NSurveyGizmo.Models.v5;
 
-namespace NSurveyGizmo.Models
+namespace NSurveyGizmo.v5
 {
-    // Here is the magic: When you see this type, use this class to read it.
-    // If you want, you can also define the JsonConverter by adding it to
-    // a JsonSerializer, and parsing with that.
-
     [JsonObject, JsonConverter(typeof(DataItemConverter))]
     public class SurveyResponse
     {
-        public string id { get; set; }
+        public String id { get; set; }
         public string contact_id { get; set; }
         public string status { get; set; }
         public string is_test_data { get; set; }
-        public DateTime datesubmitted { get; set; }
-        public string sResponseComment { get; set; }
-        public List<SurveyQuestion> SurveyQuestions { get; set; }
+        public DateTime date_submitted { get; set; }
+        public string comments { get; set; }
+        public List<SurveyQuestion> survey_data { get; set; }
         public List<SurveyUrl> SurveyUrls { get; set; }
         public List<SurveyGeoData> SurveyGeoDatas { get; set; }
         public List<SurveyVariable> SurveyVariables { get; set; }
@@ -42,13 +41,13 @@ namespace NSurveyGizmo.Models
 
         public bool Equals(SurveyResponse sr)
         {
-            return id                  == sr.id
-                   && contact_id       == sr.contact_id
-                   && status           == sr.status
-                   && is_test_data     == sr.is_test_data
-                   && datesubmitted    == sr.datesubmitted
-                   && sResponseComment == sr.sResponseComment
-                   && SurveyQuestions.SequenceEqual(sr.SurveyQuestions)
+            return id == sr.id
+                   && contact_id == sr.contact_id
+                   && status == sr.status
+                   && is_test_data == sr.is_test_data
+                   && date_submitted == sr.date_submitted
+                   && comments == sr.comments
+                   && survey_data.SequenceEqual(sr.survey_data)
                    && SurveyUrls.SequenceEqual(sr.SurveyUrls)
                    && SurveyGeoDatas.SequenceEqual(sr.SurveyGeoDatas)
                    && SurveyVariables.SequenceEqual(sr.SurveyVariables)
@@ -57,7 +56,7 @@ namespace NSurveyGizmo.Models
                    && SurveyQuestionOptions.SequenceEqual(sr.SurveyQuestionOptions)
                    && SurveyQuestionMulties.SequenceEqual(sr.SurveyQuestionMulties)
                    && AllQuestions.OrderBy(kvp => kvp.Key)
-                                  .SequenceEqual(sr.AllQuestions.OrderBy(kvp => kvp.Key));
+                       .SequenceEqual(sr.AllQuestions.OrderBy(kvp => kvp.Key));
         }
     }
 
@@ -71,8 +70,8 @@ namespace NSurveyGizmo.Models
         public bool Equals(SurveyGeoData sgd)
         {
             return SurveyGeoDataID == sgd.SurveyGeoDataID
-                && Name            == sgd.Name
-                && Value           == sgd.Value;
+                   && Name == sgd.Name
+                   && Value == sgd.Value;
         }
     }
 
@@ -84,8 +83,8 @@ namespace NSurveyGizmo.Models
 
         public bool Equals(SurveyQuestionHidden sqh)
         {
-            return QuestionID       == sqh.QuestionID
-                && QuestionResponse == sqh.QuestionResponse;
+            return QuestionID == sqh.QuestionID
+                   && QuestionResponse == sqh.QuestionResponse;
         }
     }
 
@@ -99,8 +98,8 @@ namespace NSurveyGizmo.Models
         public bool Equals(SurveyUrl su)
         {
             return SurveyUrlID == su.SurveyUrlID
-                && Name        == su.Name
-                && Value       == su.Value;
+                   && Name == su.Name
+                   && Value == su.Value;
         }
     }
 
@@ -126,8 +125,8 @@ namespace NSurveyGizmo.Models
         public bool Equals(SurveyVariableShown svs)
         {
             return SurveyVariableShownID == svs.SurveyVariableShownID
-                && Name  == svs.Name
-                && Value == svs.Value;
+                   && Name == svs.Name
+                   && Value == svs.Value;
         }
     }
 
@@ -142,12 +141,12 @@ namespace NSurveyGizmo.Models
 
         public bool Equals(SurveyResponseQuestionData srqd)
         {
-            return questionId               == srqd.questionId
-                && questionShortName        == srqd.questionShortName
-                && questionOptionIdentifier == srqd.questionOptionIdentifier
-                && value                    == srqd.value
-                && isResponseAComment == srqd.isResponseAComment
-                && questionOptionTitle      == srqd.questionOptionTitle;
+            return questionId == srqd.questionId
+                   && questionShortName == srqd.questionShortName
+                   && questionOptionIdentifier == srqd.questionOptionIdentifier
+                   && value == srqd.value
+                   && isResponseAComment == srqd.isResponseAComment
+                   && questionOptionTitle == srqd.questionOptionTitle;
         }
     }
 }
