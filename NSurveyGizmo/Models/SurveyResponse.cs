@@ -1,8 +1,11 @@
 ﻿using Newtonsoft.Json;
 using System;
+using System.CodeDom;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using Newtonsoft.Json.Serialization;
+using NSurveyGizmo.Models.v5;
 
 namespace NSurveyGizmo.Models
 {
@@ -19,15 +22,16 @@ namespace NSurveyGizmo.Models
         public string is_test_data { get; set; }
         public DateTime datesubmitted { get; set; }
         public string sResponseComment { get; set; }
-        public List<SurveyQuestion> SurveyQuestions { get; set; }
-        public List<SurveyUrl> SurveyUrls { get; set; }
-        public List<SurveyGeoData> SurveyGeoDatas { get; set; }
-        public List<SurveyVariable> SurveyVariables { get; set; }
-        public List<SurveyVariableShown> SurveyVariableShowns { get; set; }
-        public List<SurveyQuestionHidden> SurveyQuestionHiddens { get; set; }
-        public List<SurveyQuestionOption> SurveyQuestionOptions { get; set; }
-        public List<SurveyQuestionMulti> SurveyQuestionMulties { get; set; }
-        public Dictionary<int, string> AllQuestions { get; set; }
+        [JsonProperty("survey_data")]
+        public List<SurveyQuestion> SurveyQuestions { get; set; } = new List<SurveyQuestion>();
+        public List<SurveyUrl> SurveyUrls { get; set; } = new List<SurveyUrl>();
+        public List<SurveyGeoData> SurveyGeoDatas { get; set; } = new List<SurveyGeoData>();
+        public List<SurveyVariable> SurveyVariables { get; set; } = new List<SurveyVariable>();
+        public List<SurveyVariableShown> SurveyVariableShowns { get; set; } = new List<SurveyVariableShown>();
+        public List<SurveyQuestionHidden> SurveyQuestionHiddens { get; set; } = new List<SurveyQuestionHidden>();
+        public List<SurveyQuestionOption> SurveyQuestionOptions { get; set; } = new List<SurveyQuestionOption>();
+        public List<SurveyQuestionMulti> SurveyQuestionMulties { get; set; } = new List<SurveyQuestionMulti>();
+        public Dictionary<int, string> AllQuestions { get; set; } = new Dictionary<int, string>();
 
         public void AddQuestion(int key, string value)
         {
@@ -60,6 +64,8 @@ namespace NSurveyGizmo.Models
                                   .SequenceEqual(sr.AllQuestions.OrderBy(kvp => kvp.Key));
         }
     }
+
+    public class JsonDictToArrayAttribute : Attribute   {    }
 
     public class SurveyGeoData
     {

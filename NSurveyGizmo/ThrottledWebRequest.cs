@@ -88,6 +88,7 @@ namespace NSurveyGizmo
         public T GetJsonObject<T>(string url)
         {
             // TODO: add more null checks here
+            System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12 | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls;
             var responseStream = Create(url).GetResponse().GetResponseStream();
             if (responseStream == null)
             {

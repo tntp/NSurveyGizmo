@@ -1,8 +1,11 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.CodeDom;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using Newtonsoft.Json;
 
 namespace NSurveyGizmo.Models
 {
+    [JsonObject, JsonConverter(typeof(DataItemConverter))]
     public class SurveyQuestion
     {
         [Key]
@@ -10,8 +13,14 @@ namespace NSurveyGizmo.Models
         public int surveypage { get; set; }
         public LocalizableString title { get; set; }
         public string _subtype { get; set; }
+        public string value { get; set; }
+        public string question { get; set; }
         public string _type { get; set; }
         public string shortName { get; set; }
+        public string answer { get; set; }
+        public int section_id { get; set; }
+        public int answer_id { get; set; }
+        public bool shown { get; set; }
         public string QuestionResponse { get; set; }
         public QuestionProperties properties { get; set; }
         public QuestionOptions[] options { get; set; }
@@ -52,7 +61,10 @@ namespace NSurveyGizmo.Models
     {
         [Key]
         public int id { get; set; }
+        public string option { get; set; }
+        public string answer { get; set; }
         public LocalizableString title { get; set; }
+
 
         public bool Equals(QuestionOptions qo)
         {

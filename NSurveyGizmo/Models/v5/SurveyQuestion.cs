@@ -4,12 +4,15 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 
 namespace NSurveyGizmo.Models.v5
 {
+    [JsonObject, JsonConverter(typeof(DataItemConverter))]
     public class SurveyQuestion
     {
         [Key]
+       
         public int id { get; set; }
         public int page { get; set; }
         public LocalizableString title { get; set; }
@@ -58,6 +61,8 @@ namespace NSurveyGizmo.Models.v5
     {
         [Key]
         public int id { get; set; }
+        public string option { get; set; }
+        public string answer { get; set; }
         public LocalizableString title { get; set; }
 
         public bool Equals(QuestionOptions qo)

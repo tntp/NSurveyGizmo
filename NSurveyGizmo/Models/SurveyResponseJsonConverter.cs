@@ -5,7 +5,7 @@ using Newtonsoft.Json;
 
 namespace NSurveyGizmo.Models
 {
-    public class DataItemConverter : JsonConverter
+    /*public class OldSurveyResponseJsonConverter : JsonConverter
     {
         public override bool CanConvert(Type objectType)
         {
@@ -227,5 +227,5 @@ namespace NSurveyGizmo.Models
         {
             throw new NotImplementedException();
         }
-    }
+    }*/
 }

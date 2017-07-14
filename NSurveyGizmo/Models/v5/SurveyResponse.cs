@@ -9,7 +9,8 @@ using NSurveyGizmo.Models.v5;
 
 namespace NSurveyGizmo.v5
 {
-    [JsonObject, JsonConverter(typeof(DataItemConverter))]
+    /*
+    [JsonObject, JsonConverter(typeof(SurveyResponseJsonConverter))]
     public class SurveyResponse
     {
         public String id { get; set; }
@@ -149,4 +150,5 @@ namespace NSurveyGizmo.v5
                    && questionOptionTitle == srqd.questionOptionTitle;
         }
     }
+    */
 }

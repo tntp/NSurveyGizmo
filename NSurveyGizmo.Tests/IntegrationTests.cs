@@ -4,10 +4,16 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using NSurveyGizmo.Models.v5;
-using NSurveyGizmo.v5;
+using Newtonsoft.Json;
+using NSurveyGizmo.Models;
+using Contact = NSurveyGizmo.Models.v5.Contact;
+using LocalizableString = NSurveyGizmo.Models.v5.LocalizableString;
+using QuestionOptions = NSurveyGizmo.Models.v5.QuestionOptions;
+using QuestionProperties = NSurveyGizmo.Models.v5.QuestionProperties;
+using SurveyQuestionOption = NSurveyGizmo.Models.v5.SurveyQuestionOption;
 
 namespace NSurveyGizmo.Tests
 {
@@ -597,6 +603,19 @@ namespace NSurveyGizmo.Tests
             var getUpdatedSurveyContactList = apiClient.GetCampaignContactList(surveyId, campaign);
             Assert.IsTrue(updatedList);
             Assert.AreEqual(getUpdatedSurveyContactList.Count, 2);
+        }
+
+        [TestMethod()]
+        public void TestDeserialization()
+        {
+            // Base64 encoded JSON output from SurveyResponse object
+            var rawData =
+                @"eyJyZXN1bHRfb2siOnRydWUsImRhdGEiOnsgImlkIjoiMSIsImNvbnRhY3RfaWQiOiIiLCJzdGF0dXMiOiJDb21wbGV0ZSIsImlzX3Rlc3RfZGF0YSI6IjAiLCJkYXRlX3N1Ym1pdHRlZCI6IjIwMTctMDctMTQgMTE6Mzc6MjAgRURUIiwic2Vzc2lvbl9pZCI6IjE1MDAwNDY2NDBfNTk2OGU1MzA3M2FiZjguNzM1NzU4MDEiLCJsYW5ndWFnZSI6IkVuZ2xpc2giLCJkYXRlX3N0YXJ0ZWQiOiIyMDE3LTA3LTE0IDExOjM3OjIwIEVEVCIsImxpbmtfaWQiOm51bGwsInVybF92YXJpYWJsZXMiOltdLCJpcF9hZGRyZXNzIjoiMTAwLjM4LjE1MS4xMTQiLCJyZWZlcmVyIjpudWxsLCJ1c2VyX2FnZW50IjoiU3VydmV5R2l6bW8gUkVTVCBBUEkiLCJyZXNwb25zZV90aW1lIjpudWxsLCJkYXRhX3F1YWxpdHkiOltdLCJsb25naXR1ZGUiOiItNzMuOTkwNjAwNTg1OTM4IiwibGF0aXR1ZGUiOiI0MC42OTQ0MDA3ODczNTQiLCJjb3VudHJ5IjoiVW5pdGVkIFN0YXRlcyIsImNpdHkiOiJCcm9va2x5biIsInJlZ2lvbiI6Ik5ZIiwicG9zdGFsIjoiMTEyMDEiLCJkbWEiOiI1MDEiLCJzdXJ2ZXlfZGF0YSI6eyI2Ijp7ImlkIjo2LCJ0eXBlIjoiTUVOVSIsInF1ZXN0aW9uIjoiVGVzdCBzdXJ2ZXkgcXVlc3Rpb241IGZpbGUiLCJzZWN0aW9uX2lkIjoxLCJhbnN3ZXIiOiJCb3RoIiwiYW5zd2VyX2lkIjoxMDAxMSwic2hvd24iOnRydWV9LCI1Ijp7ImlkIjo1LCJ0eXBlIjoicGFyZW50IiwicXVlc3Rpb24iOiJUZXN0IHN1cnZleSBxdWVzdGlvbjQgY2hlY2tib3giLCJzZWN0aW9uX2lkIjoxLCJvcHRpb25zIjp7IjEwMDA3Ijp7ImlkIjoxMDAwNywib3B0aW9uIjoiWWVzIiwiYW5zd2VyIjoiWWVzIn19LCJzaG93biI6dHJ1ZX0sIjQiOnsiaWQiOjQsInR5cGUiOiJFU1NBWSIsInF1ZXN0aW9uIjoiVGVzdCBzdXJ2ZXkgcXVlc3Rpb24zIGNvbW1lbnQiLCJzZWN0aW9uX2lkIjoxLCJhbnN3ZXIiOiJIZXJlIGlzIG15IHJlc3BvbnMzIiwic2hvd24iOnRydWV9LCIzIjp7ImlkIjozLCJ0eXBlIjoiTUVOVSIsInF1ZXN0aW9uIjoiVGVzdCBzdXJ2ZXkgcXVlc3Rpb24yIGRyb3Bkb3duIiwic2VjdGlvbl9pZCI6MSwiYW5zd2VyIjoib3B0aW9uMHZhbCIsImFuc3dlcl9pZCI6MTAwMDEsInNob3duIjp0cnVlfSwiMiI6eyJpZCI6MiwidHlwZSI6IlRFWFRCT1giLCJxdWVzdGlvbiI6IlRlc3Qgc3VydmV5IHF1ZXN0aW9uIHRleHQgZmllbGQiLCJzZWN0aW9uX2lkIjoxLCJhbnN3ZXIiOiJIZXJlIGlzIG15IHJlc3BvbnNlMSIsInNob3duIjp0cnVlfX19DQogICAgICAgICAgICB9";
+            var data = Encoding.UTF8.GetString(Convert.FromBase64String(rawData));
+
+            var surveyResponse = JsonConvert.DeserializeObject<SurveyResponse>(data);
+            Assert.AreEqual(1, surveyResponse.id);
+
         }
 
         [TestMethod()]
