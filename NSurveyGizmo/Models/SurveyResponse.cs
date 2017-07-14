@@ -140,6 +140,20 @@ namespace NSurveyGizmo.Models
         public bool isResonseAComment { get; set; }
         public string questionOptionTitle { get; set; }
 
+        public SurveyResponseQuestionData() {}
+
+        public SurveyResponseQuestionData(int? questionId, string questionShortName, int? questionOptionIdentifier,
+            string value, bool isResonseAComment, string questionOptionTitle)
+        {
+            this.questionId               = questionId;
+            this.questionShortName        = questionShortName;
+            this.questionOptionIdentifier = questionOptionIdentifier;
+            this.value                    = value;
+            this.isResonseAComment        = isResonseAComment;
+            this.questionOptionTitle      = questionOptionTitle;
+        }
+
+
         public bool Equals(SurveyResponseQuestionData srqd)
         {
             return questionId               == srqd.questionId

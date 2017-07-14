@@ -46,7 +46,7 @@ namespace NSurveyGizmo
                 url.Append($"&properties[hidden]={props.hidden}");
                 url.Append($"&properties[option_sort]={props.option_sort}");
                 url.Append($"&properties[orientation]={props.orientation}");
-                url.Append($"&=description{Uri.EscapeDataString(props.question_description.English)}");
+                url.Append($"&description={Uri.EscapeDataString(props.question_description.English)}");
             }
             var response = GetData<SurveyQuestion>(url.ToString());
             return response != null && response.Count > 0 ? response[0] : null;
