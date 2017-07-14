@@ -614,7 +614,7 @@ namespace NSurveyGizmo.Tests
             var data = Encoding.UTF8.GetString(Convert.FromBase64String(rawData));
 
             var surveyResponse = JsonConvert.DeserializeObject<SurveyResponse>(data);
-            Assert.AreEqual(1, surveyResponse.id);
+            Assert.AreEqual("1", surveyResponse.id);
 
         }
 

@@ -58,10 +58,9 @@ namespace NSurveyGizmo.Models
                     var utcDate = DateTime.Parse(utc);
                     property.SetValue(value, utcDate, null);
                 }
-                else
-                {
-                    if (property.PropertyType == typeof(List<SurveyQuestion>))
-                    {
+                else if (property.PropertyType == typeof(List<SurveyQuestion>))
+                { 
+                    
                         var questions = serializer.Deserialize(reader) as JObject;
                         Dictionary<string, object> results = JsonConvert.DeserializeObject<Dictionary<string, object>>(questions.ToString());
                         
@@ -100,16 +99,55 @@ namespace NSurveyGizmo.Models
                         }
 
                         property.SetValue(value, qList, null);
+
+                    }else if (property.PropertyType == typeof(SurveyQuestion))
+                    {
+                        var questions = serializer.Deserialize(reader) as JObject;
+                        Dictionary<string, object> results = JsonConvert.DeserializeObject<Dictionary<string, object>>(questions.ToString());
+
+                        var qList = new List<SurveyQuestion>();
+                        var oList = new List<QuestionOptions>();
+
+                        foreach (var questionObject in results.Values)
+                        {
+                            JObject questionJObject = JObject.Parse(questionObject.ToString());
+                            var q = new SurveyQuestion();
+                            q.id = (int)questionJObject["id"];
+                            q._type = (string)questionJObject["type"];
+                            q.question = (string)questionJObject["question"];
+                            q.section_id = (int)questionJObject["section_id"];
+                            q.answer = (string)questionJObject["answer"];
+                            q.shown = (bool)questionJObject["shown"];
+
+                            if (questionJObject["options"] != null)
+                            {
+                                Dictionary<string, object> questionOptions =
+                                    JsonConvert.DeserializeObject<Dictionary<string, object>>(questionJObject["options"]
+                                        .ToString());
+                                foreach (var optionObject in questionOptions.Values)
+                                {
+                                    JObject optionJObject = JObject.Parse(optionObject.ToString());
+                                    var o = new QuestionOptions();
+                                    o.id = (int)optionJObject["id"];
+                                    o.answer = (string)optionJObject["answer"];
+                                    o.option = (string)optionJObject["option"];
+                                    oList.Add(o);
+                                }
+
+                                q.options = oList.ToArray();
+                            }
+                            qList.Add(q);
+                        }
                     }
                     else
                     {
-                        var propVal = serializer.Deserialize(reader, property.PropertyType) as JObject;
+                        var propVal = serializer.Deserialize(reader, property.PropertyType);
                         property.SetValue(value, propVal, null);
                     }
                    
                 }
                 
-            }
+            
             // Skip the , or } if we are at the end
             reader.Read();
 

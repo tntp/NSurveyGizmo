@@ -20,7 +20,7 @@ namespace NSurveyGizmo.Models
         public string contact_id { get; set; }
         public string status { get; set; }
         public string is_test_data { get; set; }
-        public DateTime datesubmitted { get; set; }
+        public DateTime date_submitted { get; set; }
         public string sResponseComment { get; set; }
         [JsonProperty("survey_data")]
         public List<SurveyQuestion> SurveyQuestions { get; set; } = new List<SurveyQuestion>();
@@ -50,7 +50,7 @@ namespace NSurveyGizmo.Models
                    && contact_id       == sr.contact_id
                    && status           == sr.status
                    && is_test_data     == sr.is_test_data
-                   && datesubmitted    == sr.datesubmitted
+                   && date_submitted == sr.date_submitted
                    && sResponseComment == sr.sResponseComment
                    && SurveyQuestions.SequenceEqual(sr.SurveyQuestions)
                    && SurveyUrls.SequenceEqual(sr.SurveyUrls)
