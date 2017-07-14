@@ -46,44 +46,18 @@ namespace NSurveyGizmo
                 url.Append($"&properties[hidden]={props.hidden}");
                 url.Append($"&properties[option_sort]={props.option_sort}");
                 url.Append($"&properties[orientation]={props.orientation}");
-                url.Append($"&description={Uri.EscapeDataString(props.question_description.English)}");
+                url.Append($"&properties[question_description][English]={Uri.EscapeUriString($"<span style=\"font-size:0px;\">{props.question_description.English}</span>")}");
             }
             var response = GetData<SurveyQuestion>(url.ToString());
             return response != null && response.Count > 0 ? response[0] : null;
         }
-        //public void CreateQuestions(List<SurveyQuestion> surveyQuestion)
-        //{
-        //    foreach (var question in surveyQuestion)
-        //    {
-        //        CreateQuestion(question.id, question.surveypage, question._type, question.title,
-        //            question.required, question.description.ToString());
-        //    }
-        //}
-        public bool UpdateQuestion(int surveyId, int questionId, LocalizableString title, bool? required, string description)
-        {
-            var url = new StringBuilder($"survey/{surveyId}/surveyquestion/{questionId}?_method=POST");
-            
-            if (!string.IsNullOrEmpty(title.English))
-            {
-                url.Append($"&title={Uri.EscapeDataString(title.English)}");
-            }
-            if (!string.IsNullOrEmpty(description))
-            {
-                url.Append($"&description={Uri.EscapeDataString(description)}");
-            }
-            if (required != null)
-            {
-                url.Append($"&properties[required]={required}");
-            }
-            var response = GetData<Result>(url.ToString());
-            return ResultOk(response);
-        }
+       
         #endregion
 
         #region Question Options
         public List<SurveyQuestionOption> GetQuestionOptions(int surveyId, int questionId, bool getAllPages = true)
         {
-            return GetData<SurveyQuestionOption>($"survey/{surveyId}/surveyquestion/{questionId}/surveyoption", getAllPages);
+            return GetData<SurveyQuestionOption>($"survey/{surveyId}/surveyquestion/{questionId}/surveyoption", getAllPages, true);
         }
         public SurveyQuestionOption GetQuestionOption(int surveyId, int questionId, int optionId, bool getAllPages = true)
         {
@@ -108,30 +82,10 @@ namespace NSurveyGizmo
             var response = GetData<Result>(url.ToString());
             return response != null && response.Count > 0 ? response[0].id : -1;
         }
-        public void CreateQuestionOptions(List<SurveyQuestionOption> surveyQuestionOption)
+        public bool DeleteSurveyOption(int surveyId, int optionId, int questionId)
         {
-            foreach (var option in surveyQuestionOption)
-            {
-                CreateQuestionOption(option.surveyID, option.surveypage, option.QuestionID, option.after,
-                    option.title, option.value);
-            }
-        }
-        public bool UpdateQuestionOption(int surveyId, int optionId, int questionId, int? orderAfterId, string title, string value)
-        {
-            var url = new StringBuilder($"survey/{surveyId}/surveyquestion/{questionId}/surveyoption/{optionId}?_method=POST");
-            if (!string.IsNullOrEmpty(title))
-            {
-                url.Append($"&title={Uri.EscapeDataString(title)}");
-            }
-            if (!string.IsNullOrEmpty(value))
-            {
-                url.Append($"&value={Uri.EscapeDataString(value)}");
-            }
-            if (orderAfterId != null)
-            {
-                url.Append($"&after={orderAfterId}");
-            }
-            var response = GetData<Result>(url.ToString());
+            var url = new StringBuilder($"survey/{surveyId}/surveyquestion/{questionId}/surveyoption/{optionId}?_method=DELETE");
+            var response = GetData<Result>(url.ToString(), nonQuery: true);
             return ResultOk(response);
         }
 
@@ -428,30 +382,6 @@ namespace NSurveyGizmo
         {
             return GetData<Contact>($"survey/{surveyId}/surveycampaign/{campaignId}/contact", true, true);
         }
-
-        public bool UpdateContactList(int contactListId, Contact contact, params string[] customFields)
-        {
-            var url =
-                BuildUrl(
-                    $"contactlist/{contactListId}?_method=POST&semailaddress={Uri.EscapeDataString(contact.semailaddress)}",
-                    new Dictionary<string, string>()
-                    {
-                        {"sfirstname", contact.sfirstname},
-                        {"slastname", contact.slastname},
-                        {"sorganization", contact.sorganization}
-                    });
-            for (var i = 0; i < customFields.Length; i++)
-            {
-                if (customFields[i] != null)
-                {
-                    url.Append("&scustomfield" + (i + 1) + "=" + Uri.EscapeDataString(customFields[i]));
-                }
-            }
-
-            var results = GetData<Result>(url.ToString(), nonQuery: true);
-            return ResultOk(results);
-        }
-
         #endregion
 
         private bool ResultOk(List<Result> results)

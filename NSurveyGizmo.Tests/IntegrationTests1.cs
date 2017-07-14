@@ -98,18 +98,8 @@ namespace NSurveyGizmo.Tests
             var questions = apiClient.GetQuestions(surveyId);
             Assert.IsTrue(questions.Count(sq => sq.Equals(question)) == 1);
 
-            var newTitle = new LocalizableString("Updated Checkbox Question Title");
-            var newDescription = "Updated Question Description";
-            var success = apiClient.UpdateQuestion(surveyId, question.id, newTitle, null, newDescription);
-            // TODO: result_ok is false but the question is still updating ¯\_(ツ)_/¯
-            //Assert.IsTrue(success);
-
-            question = apiClient.GetQuestions(surveyId).First(sq => sq.id == question.id);
-            Assert.IsTrue(question.title.Equals(newTitle));
-            Assert.IsTrue(question.properties.question_description.English == newDescription);
-
             var newQCode = "newQCode";
-            success = apiClient.UpdateQcodeOfSurveyQuestion(surveyId, question.id, newQCode);
+            var success = apiClient.UpdateQcodeOfSurveyQuestion(surveyId, question.id, newQCode);
             question = apiClient.GetQuestions(surveyId).First(sq => sq.id == question.id);
             Assert.IsTrue(success);
 
