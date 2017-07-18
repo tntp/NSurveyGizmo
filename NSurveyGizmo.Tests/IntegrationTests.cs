@@ -804,7 +804,7 @@ namespace NSurveyGizmo.Tests
             Assert.AreEqual(allResponses[0].SurveyGeoDatas[10].Name, "STANDARD_GEODMA");
             Assert.AreEqual(allResponses[0].SurveyGeoDatas[10].Value, "501");
 
-            //These don't exist anymore, too bad so sad
+            //These don't exist anymore
             //Assert.AreEqual(allResponses[0].SurveyGeoDatas[8].Name, "STANDARD_COMMENTS"); 
             //Assert.AreEqual(allResponses[0].SurveyGeoDatas[9].Name, "STANDARD_DEVICE");
             //Assert.AreEqual(allResponses[0].SurveyGeoDatas[9].Value, "Desktop");
