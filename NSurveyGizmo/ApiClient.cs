@@ -332,7 +332,7 @@ namespace NSurveyGizmo
                     {
                         {"email_address", contact.semailaddress},
                         {"first_name", contact.sfirstname},
-                        {"slastnamelast_name", contact.slastname},
+                        {"last_name", contact.slastname},
                         {"organization", contact.sorganization}
                     });
             if (customFields != null)
