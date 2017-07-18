@@ -391,6 +391,41 @@ namespace NSurveyGizmo
         {
             return GetData<Contact>($"survey/{surveyId}/surveycampaign/{campaignId}/surveycontact", true, true);
         }
+        public bool UpdateContactList(int contactListId, string email, string firstName, string lastName, string organization, Dictionary<string, string> customFields)
+        {
+            var url =
+                BuildUrl("contactlist/" + contactListId + "/contactlistcontact?_method=PUT&email_address=" + Uri.EscapeDataString(email),
+                    new Dictionary<string, string>()
+                    {
+                        {"first_name", firstName},
+                        {"last_name", lastName},
+                        {"organization", organization}
+                    });
+            if (customFields != null)
+            {
+                foreach (var key in customFields.Keys)
+                {
+                    if (customFields[key] == null) continue;
+                    url.Append("&custom[" + key + "]=" + Uri.EscapeDataString(customFields[key]));
+                }
+            }
+            var results = GetData<Result>(url.ToString(), nonQuery: true);
+            return ResultOk(results);
+        }
+        public int CreateContactList(string listName)
+        {
+            var response = GetData<Result>($"contactlist?_method=PUT&list_name={listName}" );
+            return response != null && response.Count > 0 ? response[0].id : -1;
+        }
+        public int GetContactList(int listId)
+        {
+            var response = GetData<Result>($"contactlist/{listId}");
+            return response != null && response.Count > 0 ? response[0].id : -1;
+        }
+        public List<Contact> GetAllContactsForContactList(int listId)
+        {
+            return GetData<Contact>($"contactlist/{listId}/contactlistcontact", true, true);
+        }
         #endregion
 
         private bool ResultOk(List<Result> results)

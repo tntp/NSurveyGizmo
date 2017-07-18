@@ -867,7 +867,7 @@ namespace NSurveyGizmo.Tests
 
             Assert.AreEqual(allResponses[0].status, "Complete");
 
-            Assert.IsNotNull(allResponses[0].date_submitted);
+            Assert.IsNotNull(allResponses[0].datesubmitted);
 
         }
         [TestMethod()]
@@ -918,6 +918,42 @@ namespace NSurveyGizmo.Tests
             var updatedqcodeq5 = updatedQuestions.Where(i => i.id == q5.id)
                 .Select(i => i.properties.question_description.English).First();
             Assert.AreEqual(updatedqcodeq5, "<span style=\\\"font-size:0px;\\\">UpdatedQ5</span>");
+        }
+
+        [TestMethod()]
+        public void Create_and_Update_ContactList_test()
+        {
+            var contact = new Contact()
+            {
+                semailaddress = "myemail@tntp.org",
+                sfirstname = "testname",
+                slastname = "testname",
+                sorganization = "testorg"
+            };
+
+            var contactList = apiClient.CreateContactList("coolNewList");
+            var updatedList = apiClient.UpdateContactList(contactList, contact.semailaddress, contact.sfirstname, contact.slastname,
+                contact.sorganization, null);
+            var getUpdatedContactList = apiClient.GetContactList(contactList);
+            var getAllContactsForList = apiClient.GetAllContactsForContactList(getUpdatedContactList);
+            Assert.AreEqual(getAllContactsForList.Count, 1);
+            Assert.IsNotNull(getUpdatedContactList);
+            Assert.AreEqual(getUpdatedContactList, contactList);
+            Assert.IsTrue(updatedList);
+
+            // create survey
+            var title = "Test Survey " + testStartedAt;
+            var surveyId = apiClient.CreateSurvey(title);
+            Assert.IsTrue(surveyId > 0);
+
+            //create survey campaign
+            var campaign = apiClient.CreateCampaign(surveyId, "testCampaign");
+            Assert.AreEqual(campaign, apiClient.GetCampaign(surveyId, campaign).id);
+
+            var createNewContact = apiClient.CreateContact(surveyId, campaign, contact);
+
+            var getUpdatedList = apiClient.GetCampaignContactList(surveyId, campaign);
+            Assert.IsTrue(getUpdatedList.Count > 0);
         }
     }
 }
