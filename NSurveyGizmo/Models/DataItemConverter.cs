@@ -33,8 +33,12 @@ namespace NSurveyGizmo.Models
                 {"country", "STANDARD_GEOCOUNTRY"},
                 {"city", "STANDARD_GEOCITY"},
                 {"region", "STANDARD_GEOREGION"},
+                {"postal", "STANDARD_GEOPOSTAL"},
                 {"response_time", "STANDARD_RESPONSETIME"},
-                {"comments", "STANDARD_COMMENTS"}
+                {"comments", "STANDARD_COMMENTS"},
+                {"dma", "STANDARD_GEODMA"},
+                {"user_agent", "STANDARD_USERAGENT"},
+                {"referer", "STANDARD_REFERER"}
             };
             
     
@@ -98,8 +102,18 @@ namespace NSurveyGizmo.Models
                 {
                     
                     var dataQuality = serializer.Deserialize<SurveyGeoData[]>(reader);
-
-                    value.SurveyGeoDatas.AddRange(dataQuality);
+                    foreach (var dq in dataQuality)
+                    {
+                        if (oldv4SurveyGeoData.ContainsKey(dq.Name))
+                        {
+                            var newgeo = new SurveyGeoData()
+                            {
+                                Name = dq.Name,
+                                Value = dq.Value
+                            };
+                            value.SurveyGeoDatas.Add(newgeo);
+                        }
+                    }
                 }
                 else if (oldv4SurveyGeoData.ContainsKey(name))
                 {
@@ -115,7 +129,7 @@ namespace NSurveyGizmo.Models
                 }
                 else if (property.PropertyType == typeof(List<SurveyQuestion>))
                 {
-
+                    var questionOptionAnser = new SurveyQuestionOption();
                     var questions = serializer.Deserialize(reader) as JObject;
                     Dictionary<string, object> results =
                         JsonConvert.DeserializeObject<Dictionary<string, object>>(questions?.ToString());
@@ -130,7 +144,8 @@ namespace NSurveyGizmo.Models
                         var q = new SurveyQuestion
                         {
                             id = (int) questionJObject["id"],
-                            _type = (string) questionJObject["type"],
+                            _type = (string) questionJObject["base_type"],
+                            _subtype = (string)questionJObject["type"],
                             question = (string) questionJObject["question"],
                             section_id = (int) questionJObject["section_id"],
                             QuestionResponse = (string) questionJObject["answer"]
@@ -138,9 +153,31 @@ namespace NSurveyGizmo.Models
                         if (questionJObject["answer_id"] != null)
                         {
                             q.answer_id = (int) questionJObject["answer_id"];
+                            var sv = new SurveyVariable()
+                            {
+                                SurveyVariableID = q.id,
+                                Value = q.answer_id.ToString()
+                            };
+                            value.SurveyVariables.Add(sv);
                         }
                         q.shown = (bool) questionJObject["shown"];
-
+                        if (q.shown == false || q._type == "hidden")
+                        {
+                            var sqh = new SurveyQuestionHidden
+                            {
+                                QuestionID = int.Parse(name),
+                                QuestionResponse = q.QuestionResponse
+                            };
+                            value.SurveyQuestionHiddens.Add(sqh);
+                        }else if (q.shown)
+                        {
+                            var svs = new SurveyVariableShown()
+                            {
+                                Name = q.id + "-shown",
+                                Value = "1"//meaning true
+                            };
+                            value.SurveyVariableShowns.Add(svs);
+                        }
                         if (questionJObject["options"] != null)
                         {
                             Dictionary<string, object> questionOptions =
@@ -167,6 +204,7 @@ namespace NSurveyGizmo.Models
                                     value = (string) optionJObject["option"],
                                     QuestionID = q.id
                                 };
+                                questionOptionAnser.QuestionResponse = soObject.QuestionResponse;
                                 var sqmObject = new SurveyQuestionMulti()
                                 {
                                     OptionID = (int)optionJObject["id"],
@@ -180,52 +218,14 @@ namespace NSurveyGizmo.Models
 
                             q.options = oList.ToArray();
                         }
-                        value.AddQuestion(q.id, q.QuestionResponse);
+                        
+                        value.AddQuestion(q.id, q.QuestionResponse ?? questionOptionAnser.QuestionResponse);
                         qList.Add(q);
                     }
-                    value.SurveyQuestionOptions = soList;
-                    property.SetValue(value, qList, null);
+                    //value.SurveyQuestionOptions = soList; the v4 return value was 0 for this field so im not going to add them for v5
+                    var qListWOQuestionMulti = qList.Where(x => x.options == null).ToList();
+                    property.SetValue(value, qListWOQuestionMulti, null);
 
-                }
-                else if (property.PropertyType == typeof(SurveyQuestion))
-                {
-                    var questions = serializer.Deserialize(reader) as JObject;
-                    Dictionary<string, object> results =
-                        JsonConvert.DeserializeObject<Dictionary<string, object>>(questions.ToString());
-
-                    var qList = new List<SurveyQuestion>();
-                    var oList = new List<QuestionOptions>();
-
-                    foreach (var questionObject in results.Values)
-                    {
-                        JObject questionJObject = JObject.Parse(questionObject.ToString());
-                        var q = new SurveyQuestion();
-                        q.id = (int) questionJObject["id"];
-                        q._type = (string) questionJObject["type"];
-                        q.question = (string) questionJObject["question"];
-                        q.section_id = (int) questionJObject["section_id"];
-                        q.QuestionResponse = (string) questionJObject["answer"];
-                        q.shown = (bool) questionJObject["shown"];
-
-                        if (questionJObject["options"] != null)
-                        {
-                            Dictionary<string, object> questionOptions =
-                                JsonConvert.DeserializeObject<Dictionary<string, object>>(questionJObject["options"]
-                                    .ToString());
-                            foreach (var optionObject in questionOptions.Values)
-                            {
-                                JObject optionJObject = JObject.Parse(optionObject.ToString());
-                                var o = new QuestionOptions();
-                                o.id = (int) optionJObject["id"];
-                                o.answer = (string) optionJObject["answer"];
-                                o.option = (string) optionJObject["option"];
-                                oList.Add(o);
-                            }
-
-                            q.options = oList.ToArray();
-                        }
-                        qList.Add(q);
-                    }
                 }
                 else
                 {

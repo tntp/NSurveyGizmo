@@ -216,21 +216,6 @@ namespace NSurveyGizmo.Tests
             Assert.IsTrue(retrievedMessage.from.name == message.from.name);
             Assert.IsTrue(retrievedMessage.from.email == message.from.email);
         }
-
-        // TODO: Finish implementing
-        //[TestMethod]
-        //public void SurveyResponse_Tests()
-        //{
-        //    var surveyId = apiClient.CreateSurvey(_surveyTitle);
-
-        //    // sd.questionId, sd.questionShortName, sd.questionOptionIdentifier, sd.value, sd.isResonseAComment, sd.questionOptionTitle
-        //    var questionData = new List<SurveyResponseQuestionData>
-        //    {
-        //        new SurveyResponseQuestionData(1, "q1", 1, "True", false, "Question 1")
-        //    };
-        //    var surveyResponse = apiClient.CreateSurveyResponse(surveyId, "statusnotused", questionData);
-
-        //    var retrievedResponses = apiClient.GetResponses(surveyId);
-        //}
+        
     }
 }
