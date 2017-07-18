@@ -155,8 +155,6 @@ namespace NSurveyGizmo.Models
                                     answer = (string) optionJObject["answer"],
                                     option = (string) optionJObject["option"]
                                 };
-                                q.answer_id = (int)optionJObject["id"];
-                                q.QuestionResponse = (string)optionJObject["answer"];
                                 oList.Add(o);
 
                                 var soObject = new SurveyQuestionOption
@@ -169,8 +167,15 @@ namespace NSurveyGizmo.Models
                                     value = (string) optionJObject["option"],
                                     QuestionID = q.id
                                 };
+                                var sqmObject = new SurveyQuestionMulti()
+                                {
+                                    OptionID = (int)optionJObject["id"],
+                                    QuestionResponse = (string)optionJObject["answer"],
+                                    QuestionID = q.id
+                                };
 
                                 soList.Add(soObject);
+                                value.SurveyQuestionMulties.Add(sqmObject);
                             }
 
                             q.options = oList.ToArray();
