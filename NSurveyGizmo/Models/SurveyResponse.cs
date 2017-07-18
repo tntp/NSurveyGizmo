@@ -5,25 +5,29 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using Newtonsoft.Json.Serialization;
-using NSurveyGizmo.Models.v5;
+using NSurveyGizmo.Models;
 
 namespace NSurveyGizmo.Models
 {
     // Here is the magic: When you see this type, use this class to read it.
     // If you want, you can also define the JsonConverter by adding it to
     // a JsonSerializer, and parsing with that.
-
-    [JsonObject, JsonConverter(typeof(DataItemConverter))]
+    [JsonObject]
+    [JsonConverter(typeof(DataItemConverter))]
     public class SurveyResponse
     {
+        public bool result_ok { get; set; }
+        public object data { get; set; }
         public string id { get; set; }
         public string contact_id { get; set; }
         public string status { get; set; }
         public string is_test_data { get; set; }
         public DateTime date_submitted { get; set; }
+        [JsonProperty("comments")]
         public string sResponseComment { get; set; }
         [JsonProperty("survey_data")]
         public List<SurveyQuestion> SurveyQuestions { get; set; } = new List<SurveyQuestion>();
+        [JsonProperty("url_variables")]
         public List<SurveyUrl> SurveyUrls { get; set; } = new List<SurveyUrl>();
         public List<SurveyGeoData> SurveyGeoDatas { get; set; } = new List<SurveyGeoData>();
         public List<SurveyVariable> SurveyVariables { get; set; } = new List<SurveyVariable>();

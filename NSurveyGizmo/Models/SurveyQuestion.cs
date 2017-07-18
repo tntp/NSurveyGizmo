@@ -5,21 +5,22 @@ using Newtonsoft.Json;
 
 namespace NSurveyGizmo.Models
 {
-    [JsonObject, JsonConverter(typeof(DataItemConverter))]
     public class SurveyQuestion
     {
         [Key]
         public int id { get; set; }
-        public int surveypage { get; set; }
+        public int page { get; set; }
         public LocalizableString title { get; set; }
+        [JsonProperty("type")]
         public string _subtype { get; set; }
         public string value { get; set; }
         public string question { get; set; }
+        [JsonProperty("base_type")]
         public string _type { get; set; }
         public string shortName { get; set; }
         public string answer { get; set; }
         public int section_id { get; set; }
-        public int answer_id { get; set; }
+        public int? answer_id { get; set; }
         public bool shown { get; set; }
         public string QuestionResponse { get; set; }
         public QuestionProperties properties { get; set; }
@@ -28,7 +29,7 @@ namespace NSurveyGizmo.Models
         public bool Equals(SurveyQuestion sq)
         {
             return id               == sq.id
-                && surveypage       == sq.surveypage
+                && page       == sq.page
                 && _subtype         == sq._subtype
                 && _type            == sq._type
                 && shortName        == sq.shortName
@@ -61,6 +62,7 @@ namespace NSurveyGizmo.Models
     {
         [Key]
         public int id { get; set; }
+        public string shortName { get; set; }
         public string option { get; set; }
         public string answer { get; set; }
         public LocalizableString title { get; set; }

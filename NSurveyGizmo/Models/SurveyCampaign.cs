@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Newtonsoft.Json;
 
 namespace NSurveyGizmo.Models
 {
@@ -11,7 +12,9 @@ namespace NSurveyGizmo.Models
         public int id { get; set; }
         public string status { get; set; }
         public string name { get; set; }
+        [JsonProperty("type")]
         public string _type { get; set; }
+        [JsonProperty("subtype")]
         public string _subtype { get; set; }
 
         public bool Equals(SurveyCampaign sc)

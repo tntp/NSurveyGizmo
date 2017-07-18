@@ -6,16 +6,15 @@ using System.Text;
 using NLog;
 using NSurveyGizmo.Models;
 using Polly;
-using NSurveyGizmo.v5;
-using Contact = NSurveyGizmo.Models.v5.Contact;
-using EmailMessage = NSurveyGizmo.Models.v5.EmailMessage;
-using LocalizableString = NSurveyGizmo.Models.v5.LocalizableString;
-using QuestionProperties = NSurveyGizmo.Models.v5.QuestionProperties;
-using Result = NSurveyGizmo.Models.v5.Result;
-using Survey = NSurveyGizmo.Models.v5.Survey;
-using SurveyCampaign = NSurveyGizmo.Models.v5.SurveyCampaign;
-using SurveyQuestion = NSurveyGizmo.Models.v5.SurveyQuestion;
-using SurveyQuestionOption = NSurveyGizmo.Models.v5.SurveyQuestionOption;
+using Contact = NSurveyGizmo.Models.Contact;
+using EmailMessage = NSurveyGizmo.Models.EmailMessage;
+using LocalizableString = NSurveyGizmo.Models.LocalizableString;
+using QuestionProperties = NSurveyGizmo.Models.QuestionProperties;
+using Result = NSurveyGizmo.Models.Result;
+using Survey = NSurveyGizmo.Models.Survey;
+using SurveyCampaign = NSurveyGizmo.Models.SurveyCampaign;
+using SurveyQuestion = NSurveyGizmo.Models.SurveyQuestion;
+using SurveyQuestionOption = NSurveyGizmo.Models.SurveyQuestionOption;
 
 namespace NSurveyGizmo
 {
@@ -331,10 +330,10 @@ namespace NSurveyGizmo
                     $"survey/{surveyId}/surveycampaign/{campaignId}/surveycontact/{strContactId}?_method={method}",
                     new Dictionary<string, string>()
                     {
-                        {"email_address", contact.email_address},
-                        {"first_name", contact.first_name},
-                        {"slastnamelast_name", contact.last_name},
-                        {"organization", contact.organization}
+                        {"email_address", contact.semailaddress},
+                        {"first_name", contact.sfirstname},
+                        {"slastnamelast_name", contact.slastname},
+                        {"organization", contact.sorganization}
                     });
             if (customFields != null)
             {
@@ -457,7 +456,7 @@ namespace NSurveyGizmo
                     }
                     else
                     {
-                        var queryResult = ThrottledWebRequest.GetJsonObject<Models.v5.Result<T>>(baseUrl);
+                        var queryResult = ThrottledWebRequest.GetJsonObject<Result<T>>(baseUrl);
                         if (queryResult.Data != null)
                         {
                             data.Add(queryResult.Data);
@@ -480,7 +479,7 @@ namespace NSurveyGizmo
                         var pagedUrl = $"{baseUrl}&page={page}";
                         currentUrl = pagedUrl;
 
-                        var result = ThrottledWebRequest.GetJsonObject<Models.v5.PagedResult<T>>(pagedUrl);
+                        var result = ThrottledWebRequest.GetJsonObject<PagedResult<T>>(pagedUrl);
 
                         if (!result.result_ok || result.Data == null)
                         {

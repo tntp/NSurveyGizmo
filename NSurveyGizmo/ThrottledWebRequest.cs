@@ -4,6 +4,7 @@ using System.Net;
 using System.Threading;
 using System.Xml;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace NSurveyGizmo
 {
@@ -98,7 +99,11 @@ namespace NSurveyGizmo
             using (var sr = new StreamReader(responseStream))
             {
                 var result = sr.ReadToEnd();
+                JToken token = JObject.Parse(result);
+
+
                 return JsonConvert.DeserializeObject<T>(result);
+               
             }
 
             // TODO: use RestSharp as below (might want to put this in ApiClient)

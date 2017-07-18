@@ -64,17 +64,8 @@
     <Compile Include="Models\SurveyQuestionMulti.cs" />
     <Compile Include="Models\SurveyQuestionOption.cs" />
     <Compile Include="Models\SurveyResponse.cs" />
-    <Compile Include="Models\v5\Contact.cs" />
-    <Compile Include="Models\v5\DataItemConverter.cs" />
-    <Compile Include="Models\v5\EmailMessage.cs" />
-    <Compile Include="Models\v5\LocalizableString.cs" />
-    <Compile Include="Models\v5\Result.cs" />
-    <Compile Include="Models\v5\Survey.cs" />
-    <Compile Include="Models\v5\SurveyCampaign.cs" />
-    <Compile Include="Models\v5\SurveyQuestion.cs" />
-    <Compile Include="Models\v5\SurveyQuestionMulti.cs" />
-    <Compile Include="Models\v5\SurveyQuestionOption.cs" />
-    <Compile Include="Models\v5\SurveyResponse.cs" />
+    <Compile Include="Models\DataItemConverter.cs" />
+    <Compile Include="Models\DataItemConverterSurveyQuestion.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ThrottledWebRequest.cs" />
   </ItemGroup>
