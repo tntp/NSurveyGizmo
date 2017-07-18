@@ -24,7 +24,6 @@ namespace NSurveyGizmo.Models
         public override object ReadJson(JsonReader reader, Type objectType, object existingValue,
             JsonSerializer serializer)
         {
-            //taking the new response format and jamming it into the old model to keep everything the same
             var oldv4SurveyGeoData = new Dictionary<string, string>()
             {
                 {"ip_address", "STANDARD_IP"},

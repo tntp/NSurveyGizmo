@@ -847,7 +847,7 @@ namespace NSurveyGizmo.Tests
 
             Assert.AreEqual(allResponses[0].SurveyVariableShowns.Count, 5);
             //Assert.AreEqual(allResponses[0].SurveyVariableShowns.Count, 6);
-            //NOT A CLUE WHAT THIS IS
+            
             //Assert.AreEqual(allResponses[0].SurveyVariableShowns[0].Name, "PORTAL_RELATIONSHIP");  
             //Assert.AreEqual(allResponses[0].SurveyVariableShowns[0].SurveyVariableShownID, 0);
             //Assert.AreEqual(allResponses[0].SurveyVariableShowns[0].Value, "");
