@@ -18,10 +18,10 @@ namespace NSurveyGizmo.Models
         [JsonProperty("base_type")]
         public string _type { get; set; }
         public string shortName { get; set; }
-        public string answer { get; set; }
         public int section_id { get; set; }
         public int? answer_id { get; set; }
         public bool shown { get; set; }
+        [JsonProperty("answer")]
         public string QuestionResponse { get; set; }
         public QuestionProperties properties { get; set; }
         public QuestionOptions[] options { get; set; }

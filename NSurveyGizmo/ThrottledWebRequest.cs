@@ -99,9 +99,7 @@ namespace NSurveyGizmo
             using (var sr = new StreamReader(responseStream))
             {
                 var result = sr.ReadToEnd();
-                JToken token = JObject.Parse(result);
-
-
+               
                 return JsonConvert.DeserializeObject<T>(result);
                
             }

@@ -24,7 +24,7 @@ namespace NSurveyGizmo.Models
         public override object ReadJson(JsonReader reader, Type objectType, object existingValue,
             JsonSerializer serializer)
         {
-            
+            //taking the new response format and jamming it into the old model to keep everything the same
             var oldv4SurveyGeoData = new Dictionary<string, string>()
             {
                 {"ip_address", "STANDARD_IP"},
@@ -35,21 +35,19 @@ namespace NSurveyGizmo.Models
                 {"region", "STANDARD_GEOREGION"},
                 {"response_time", "STANDARD_RESPONSETIME"},
                 {"comments", "STANDARD_COMMENTS"}
-            
             };
+            
     
             var value = (SurveyResponse) existingValue ?? new SurveyResponse();
-
-            while (reader.Read())
+            // Skip opening {
+            reader.Read();
+            while (reader.TokenType == JsonToken.PropertyName)
             {
-                if (reader.TokenType != JsonToken.PropertyName)
-                {
-                    continue;
-                }
+                
                 var name = reader.Value.ToString();
                 reader.Read();
 
-
+         
                 PropertyInfo property;
                 if (oldv4SurveyGeoData.ContainsKey(name))
                 {
@@ -69,6 +67,7 @@ namespace NSurveyGizmo.Models
 
                 if (property == null)
                 {
+                    reader.Read();
                     continue;
                 }
                 if (property.PropertyType == typeof(DateTime))
@@ -95,6 +94,13 @@ namespace NSurveyGizmo.Models
                     }
 
                 }
+                else if (property.PropertyType == typeof(List<SurveyGeoData>))
+                {
+                    
+                    var dataQuality = serializer.Deserialize<SurveyGeoData[]>(reader);
+
+                    value.SurveyGeoDatas.AddRange(dataQuality);
+                }
                 else if (oldv4SurveyGeoData.ContainsKey(name))
                 {
                     string oldName = oldv4SurveyGeoData.FirstOrDefault(x => x.Key == name).Value;
@@ -112,7 +118,7 @@ namespace NSurveyGizmo.Models
 
                     var questions = serializer.Deserialize(reader) as JObject;
                     Dictionary<string, object> results =
-                        JsonConvert.DeserializeObject<Dictionary<string, object>>(questions.ToString());
+                        JsonConvert.DeserializeObject<Dictionary<string, object>>(questions?.ToString());
 
                     var qList = new List<SurveyQuestion>();
                     var oList = new List<QuestionOptions>();
@@ -121,12 +127,14 @@ namespace NSurveyGizmo.Models
                     foreach (var questionObject in results.Values)
                     {
                         JObject questionJObject = JObject.Parse(questionObject.ToString());
-                        var q = new SurveyQuestion();
-                        q.id = (int) questionJObject["id"];
-                        q._type = (string) questionJObject["type"];
-                        q.question = (string) questionJObject["question"];
-                        q.section_id = (int) questionJObject["section_id"];
-                        q.answer = (string) questionJObject["answer"];
+                        var q = new SurveyQuestion
+                        {
+                            id = (int) questionJObject["id"],
+                            _type = (string) questionJObject["type"],
+                            question = (string) questionJObject["question"],
+                            section_id = (int) questionJObject["section_id"],
+                            QuestionResponse = (string) questionJObject["answer"]
+                        };
                         if (questionJObject["answer_id"] != null)
                         {
                             q.answer_id = (int) questionJObject["answer_id"];
@@ -141,28 +149,33 @@ namespace NSurveyGizmo.Models
                             foreach (var optionObject in questionOptions.Values)
                             {
                                 JObject optionJObject = JObject.Parse(optionObject.ToString());
-                                var o = new QuestionOptions();
-                                o.id = (int) optionJObject["id"];
-                                o.answer = (string) optionJObject["answer"];
-                                o.option = (string) optionJObject["option"];
+                                var o = new QuestionOptions
+                                {
+                                    id = (int) optionJObject["id"],
+                                    answer = (string) optionJObject["answer"],
+                                    option = (string) optionJObject["option"]
+                                };
+                                q.answer_id = (int)optionJObject["id"];
+                                q.QuestionResponse = (string)optionJObject["answer"];
                                 oList.Add(o);
 
-                                var soObject = new SurveyQuestionOption();
-                                soObject.id = (int) optionJObject["id"];
-                                soObject.OptionID = (int) optionJObject["id"];
-                                soObject.QuestionResponse = (string) optionJObject["answer"];
-                                soObject.surveyID = 0;
-                                soObject.title = new LocalizableString();
-                                soObject.title.English = (string) optionJObject["option"];
-                                soObject.value = (string) optionJObject["option"];
-                                soObject.QuestionID = q.id;
+                                var soObject = new SurveyQuestionOption
+                                {
+                                    id = (int) optionJObject["id"],
+                                    OptionID = (int) optionJObject["id"],
+                                    QuestionResponse = (string) optionJObject["answer"],
+                                    surveyID = 0,
+                                    title = new LocalizableString {English = (string) optionJObject["option"]},
+                                    value = (string) optionJObject["option"],
+                                    QuestionID = q.id
+                                };
 
                                 soList.Add(soObject);
-                                value.AddQuestion(q.id, soObject.QuestionResponse);
                             }
 
                             q.options = oList.ToArray();
                         }
+                        value.AddQuestion(q.id, q.QuestionResponse);
                         qList.Add(q);
                     }
                     value.SurveyQuestionOptions = soList;
@@ -186,7 +199,7 @@ namespace NSurveyGizmo.Models
                         q._type = (string) questionJObject["type"];
                         q.question = (string) questionJObject["question"];
                         q.section_id = (int) questionJObject["section_id"];
-                        q.answer = (string) questionJObject["answer"];
+                        q.QuestionResponse = (string) questionJObject["answer"];
                         q.shown = (bool) questionJObject["shown"];
 
                         if (questionJObject["options"] != null)
@@ -214,11 +227,12 @@ namespace NSurveyGizmo.Models
                     var propVal = serializer.Deserialize(reader, property.PropertyType);
                     property.SetValue(value, propVal, null);
                 }
-
+                // Skip the , or } if we are at the end
+                reader.Read();
             }
            
 
-            return new [] { value };
+            return value;
         }
 
         public override bool CanWrite => false;

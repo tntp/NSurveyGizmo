@@ -698,8 +698,8 @@ namespace NSurveyGizmo.Tests
             fakeContact.sfirstname = "John";
             fakeContact.slastname = "Doe";
             fakeContact.sorganization = "Test sorganization";
-            //var contactId = apiClient.CreateContact(surveyId, campaign, fakeContact);
-           // Assert.AreEqual(contactId, apiClient.GetContact(surveyId, campaign, contactId).id);
+            var contactId = apiClient.CreateContact(surveyId, campaign, fakeContact);
+            Assert.AreEqual(contactId, apiClient.GetContact(surveyId, campaign, contactId).id);
 
             // create survey Response
             var r1 = new SurveyResponseQuestionData()

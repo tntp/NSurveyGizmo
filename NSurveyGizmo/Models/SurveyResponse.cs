@@ -16,8 +16,6 @@ namespace NSurveyGizmo.Models
     [JsonConverter(typeof(DataItemConverter))]
     public class SurveyResponse
     {
-        public bool result_ok { get; set; }
-        public object data { get; set; }
         public string id { get; set; }
         public string contact_id { get; set; }
         public string status { get; set; }
@@ -30,6 +28,7 @@ namespace NSurveyGizmo.Models
         [JsonProperty("url_variables")]
         public List<SurveyUrl> SurveyUrls { get; set; } = new List<SurveyUrl>();
         public List<SurveyGeoData> SurveyGeoDatas { get; set; } = new List<SurveyGeoData>();
+        public List<SurveyGeoData> data_quality { get; set; } = new List<SurveyGeoData>();
         public List<SurveyVariable> SurveyVariables { get; set; } = new List<SurveyVariable>();
         public List<SurveyVariableShown> SurveyVariableShowns { get; set; } = new List<SurveyVariableShown>();
         public List<SurveyQuestionHidden> SurveyQuestionHiddens { get; set; } = new List<SurveyQuestionHidden>();
