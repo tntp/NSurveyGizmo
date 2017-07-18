@@ -57,25 +57,25 @@ namespace NSurveyGizmo.Models
 
         public bool Equals(Contact contact)
         {
-            return id             == contact.id
-                && semailaddress  == contact.semailaddress
-                && sfirstname     == contact.sfirstname
-                && slastname      == contact.slastname
-                && sorganization  == contact.sorganization
-                && sdivision      == contact.sdivision
-                && steam          == contact.steam
-                && sgroup         == contact.sgroup
-                && srole          == contact.srole
-                && shomephone     == contact.shomephone
-                && sfaxphone      == contact.sfaxphone
-                && sbusinessphone == contact.sbusinessphone
-                && smailingaddress== contact.smailingaddress
-                && scustomfield5  == contact.scustomfield5
-                && scustomfield7  == contact.scustomfield7
-                && scustomfield8  == contact.scustomfield8
-                && scustomfield9  == contact.scustomfield9
-                && scustomfield10 == contact.scustomfield10
-                && estatus        == contact.estatus;
+            return id              == contact.id
+                && semailaddress   == contact.semailaddress
+                && sfirstname      == contact.sfirstname
+                && slastname       == contact.slastname
+                && sorganization   == contact.sorganization
+                && sdivision       == contact.sdivision
+                && steam           == contact.steam
+                && sgroup          == contact.sgroup
+                && srole           == contact.srole
+                && shomephone      == contact.shomephone
+                && sfaxphone       == contact.sfaxphone
+                && sbusinessphone  == contact.sbusinessphone
+                && smailingaddress == contact.smailingaddress
+                && scustomfield5   == contact.scustomfield5
+                && scustomfield7   == contact.scustomfield7
+                && scustomfield8   == contact.scustomfield8
+                && scustomfield9   == contact.scustomfield9
+                && scustomfield10  == contact.scustomfield10
+                && estatus         == contact.estatus;
         }
     }
 }
