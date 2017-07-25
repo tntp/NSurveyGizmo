@@ -1,10 +1,13 @@
-﻿using System.CodeDom;
+﻿using System;
+using System.CodeDom;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using Newtonsoft.Json;
 
 namespace NSurveyGizmo.Models
 {
+    [JsonObject, JsonConverter(typeof(DataItemConverterSurveyQuestion))]
     public class SurveyQuestion
     {
         [Key]
@@ -14,10 +17,12 @@ namespace NSurveyGizmo.Models
         [JsonProperty("type")]
         public string _subtype { get; set; }
         public string value { get; set; }
+        public Dictionary<string, string> varname { get; set; }
+        public string[] description { get; set; }
         public string question { get; set; }
         [JsonProperty("base_type")]
         public string _type { get; set; }
-        public string shortName { get; set; }
+        public string shortname { get; set; }
         public int section_id { get; set; }
         public int? answer_id { get; set; }
         public bool shown { get; set; }
@@ -32,15 +37,15 @@ namespace NSurveyGizmo.Models
                 && page       == sq.page
                 && _subtype         == sq._subtype
                 && _type            == sq._type
-                && shortName        == sq.shortName
+                && shortname        == sq.shortname
                 && QuestionResponse == sq.QuestionResponse
                 && title.Equals(sq.title)
                 && properties.Equals(sq.properties)
-                && options.SequenceEqual(sq.options);
+                && options.SequenceEqual(sq.options)
+                && varname.SequenceEqual(sq.varname);
         }
     }
-
-    public class QuestionProperties
+public class QuestionProperties
     {
         public bool option_sort { get; set; }
         public bool required { get; set; }
@@ -73,4 +78,5 @@ namespace NSurveyGizmo.Models
             return id == qo.id && title.Equals(qo.title);
         }
     }
+    
 }

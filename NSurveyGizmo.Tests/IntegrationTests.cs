@@ -692,7 +692,7 @@ namespace NSurveyGizmo.Tests
             var r1 = new SurveyResponseQuestionData()
             {
                 questionId = q1.id,
-                questionShortName = q1.shortName,
+                questionShortName = q1.shortname,
                 questionOptionIdentifier = null,
                 value = "Here is my response1",
                 isResponseAComment = false
@@ -700,7 +700,7 @@ namespace NSurveyGizmo.Tests
             var r2 = new SurveyResponseQuestionData()//comments dont count as questions
             {
                 questionId = q1.id,
-                questionShortName = q1.shortName,
+                questionShortName = q1.shortname,
                 questionOptionIdentifier = null,
                 value = "Here is my comment for response 1",
                 isResponseAComment = true
@@ -708,7 +708,7 @@ namespace NSurveyGizmo.Tests
             var r3 = new SurveyResponseQuestionData()
             {
                 questionId = q2.id,
-                questionShortName = q2.shortName,
+                questionShortName = q2.shortname,
                 questionOptionIdentifier = surveyQuestionOptions[0].id,
                 value = surveyQuestionOptions[0].value,
                 isResponseAComment = false
@@ -716,7 +716,7 @@ namespace NSurveyGizmo.Tests
             var r4 = new SurveyResponseQuestionData()
             {
                 questionId = q3.id,
-                questionShortName = q3.shortName,
+                questionShortName = q3.shortname,
                 questionOptionIdentifier = null,
                 value = "Here is my respons3",
                 isResponseAComment = false
@@ -724,7 +724,7 @@ namespace NSurveyGizmo.Tests
             var r5 = new SurveyResponseQuestionData()
             {
                 questionId = q4.id,
-                questionShortName = q4.shortName,
+                questionShortName = q4.shortname,
                 questionOptionIdentifier = q4Option1,
                 value = "Yes",
                 isResponseAComment = false
@@ -732,7 +732,7 @@ namespace NSurveyGizmo.Tests
             var r6 = new SurveyResponseQuestionData()
             {
                 questionId = q5.id,
-                questionShortName = q5.shortName,
+                questionShortName = q5.shortname,
                 questionOptionIdentifier = q5Option3,
                 value = "Both",
                 isResponseAComment = false
@@ -891,16 +891,18 @@ namespace NSurveyGizmo.Tests
             var thirdQuestionTitle = new LocalizableString("Test survey question3 comment");
             var fourthQuestionTitle = new LocalizableString("Test survey question4 checkbox");
             var fifthQuestionTitle = new LocalizableString("Test survey question5 file");
-
-            var descrip5 = new QuestionProperties();
-            descrip5.question_description = new Models.LocalizableString();
-            descrip5.question_description.English = "Q5";
-
-            var q1 = apiClient.CreateQuestion(surveyId, 1, "text", firstQuestionTitle, "q1Short", null);
+         
+            var q1 = apiClient.CreateQuestion(surveyId, 1, "text", firstQuestionTitle, "q1Short", new QuestionProperties() {required = true, question_description = new LocalizableString("T12345")});
             var q2 = apiClient.CreateQuestion(surveyId, 1, "menu", secondQuestionTitle, "q2Short", null);
             var q3 = apiClient.CreateQuestion(surveyId, 1, "essay", thirdQuestionTitle, "q3Short", null);
             var q4 = apiClient.CreateQuestion(surveyId, 1, "checkbox", fourthQuestionTitle, "q4Short", null);
-            var q5 = apiClient.CreateQuestion(surveyId, 1, "menu", fifthQuestionTitle, "q5Short", descrip5);
+            var q5 = apiClient.CreateQuestion(surveyId, 1, "menu", fifthQuestionTitle, "q5Short", null);
+
+            ////create quesiton options for checkbox
+            var yesNoOption = new LocalizableString("Yes");
+            var yesNoOption2 = new LocalizableString("No");
+            var q4Option1 = apiClient.CreateQuestionOption(surveyId, 1, q4.id, null, yesNoOption, yesNoOption.English);
+            var q4Option2 = apiClient.CreateQuestionOption(surveyId, 1, q4.id, null, yesNoOption2, yesNoOption2.English);
 
             // get questions
             var questions = apiClient.GetQuestions(surveyId);
@@ -911,13 +913,17 @@ namespace NSurveyGizmo.Tests
             Assert.IsTrue(questions.Any(i => i.id == q4.id));
             Assert.IsTrue(questions.Any(i => i.id == q5.id));
 
-            var updateQCode = apiClient.UpdateQcodeOfSurveyQuestion(surveyId, q5.id, "UpdatedQ5");
+            var updateQCode = apiClient.UpdateQcodeOfSurveyQuestion(surveyId, q4.id, "UpdatedQ4");
+            var updateQCode2 = apiClient.UpdateQcodeOfSurveyQuestion(surveyId, q1.id, "UpdatedQ1");
             Assert.IsTrue(updateQCode);
+            Assert.IsTrue(updateQCode2);
 
             var updatedQuestions = apiClient.GetQuestions(surveyId);
-            var updatedqcodeq5 = updatedQuestions.Where(i => i.id == q5.id)
-                .Select(i => i.properties.question_description.English).First();
-            Assert.AreEqual(updatedqcodeq5, "<span style=\\\"font-size:0px;\\\">UpdatedQ5</span>");
+            var updatedqcodeq1 = updatedQuestions.Where(i => i.id == q1.id).Select(i => i.properties.question_description.English).First();
+            var updatedqcodeq4 = updatedQuestions.Where(i => i.id == q4.id).Select(i => i.properties.question_description.English).First();
+
+            Assert.AreEqual(updatedqcodeq1, "UpdatedQ1");
+            Assert.AreEqual(updatedqcodeq4, "UpdatedQ4");
         }
 
         [TestMethod()]

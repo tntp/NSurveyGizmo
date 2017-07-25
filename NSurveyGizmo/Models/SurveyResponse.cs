@@ -12,8 +12,8 @@ namespace NSurveyGizmo.Models
     // Here is the magic: When you see this type, use this class to read it.
     // If you want, you can also define the JsonConverter by adding it to
     // a JsonSerializer, and parsing with that.
-    [JsonObject]
-    [JsonConverter(typeof(DataItemConverter))]
+    
+    [JsonObject, JsonConverter(typeof(DataItemConverter))]
     public class SurveyResponse
     {
         public string id { get; set; }

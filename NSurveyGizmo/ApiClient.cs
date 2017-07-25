@@ -55,7 +55,7 @@ namespace NSurveyGizmo
                 url.Append($"&properties[hidden]={props.hidden}");
                 url.Append($"&properties[option_sort]={props.option_sort}");
                 url.Append($"&properties[orientation]={props.orientation}");
-                url.Append($"&properties[question_description][English]={Uri.EscapeUriString($"<span style=\"font-size:0px;\">{props.question_description.English}</span>")}");
+                url.Append($"&properties[question_description][English]={Uri.EscapeDataString(props.question_description.English)}");
             }
             var response = GetData<SurveyQuestion>(url.ToString());
             return response != null && response.Count > 0 ? response[0] : null;
@@ -240,10 +240,20 @@ namespace NSurveyGizmo
             return ResultOk(results);
         }
         public bool UpdateQcodeOfSurveyQuestion(int surveyId, int questionId, string qCode)
-        {
-            qCode = $"<span style=\"font-size:0px;\">{qCode}</span>";
-
-            var url = new StringBuilder($"survey/{surveyId}/surveyquestion/{questionId}?_method=POST&properties[question_description][English]={Uri.EscapeUriString(qCode)}");
+        {           
+            var url = new StringBuilder($"survey/{surveyId}/surveyquestion/{questionId}?_method=POST");
+            var questionOptions = GetQuestionOptions(surveyId, questionId);
+            if (questionOptions.Count > 0)
+            {
+                foreach (var op in questionOptions)
+                {
+                    url.Append($"&varname[{op.id}]={Uri.EscapeDataString(qCode)}");
+                }
+            }
+            else
+            {
+                url.Append($"&varname={Uri.EscapeDataString(qCode)}");
+            }
 
             var results = GetData<Result>(url.ToString(), nonQuery: true);
 
