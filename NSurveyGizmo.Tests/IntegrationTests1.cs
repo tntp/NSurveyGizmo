@@ -93,7 +93,7 @@ namespace NSurveyGizmo.Tests
             var question = apiClient.CreateQuestion(surveyId, 1, type, title, shortName, questionProps);
             Assert.IsTrue(question._subtype == type);
             Assert.IsTrue(question.title.Equals(title));
-            Assert.IsTrue(question.shortName == shortName);
+            Assert.IsTrue(question.shortname == shortName);
 
             var questions = apiClient.GetQuestions(surveyId);
             Assert.IsTrue(questions.Count(sq => sq.Equals(question)) == 1);

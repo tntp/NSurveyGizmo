@@ -1,18 +1,15 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using System.Text.RegularExpressions;
+using System.Threading.Tasks;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Newtonsoft.Json.Serialization;
-using NSurveyGizmo.Models;
 
 namespace NSurveyGizmo.Models
 {
-    public class DataItemConverterSurveyQuestion : JsonConverter
+    class DataItemConverterSurveyQuestion : JsonConverter
     {
         public override bool CanConvert(Type objectType)
         {
@@ -25,83 +22,91 @@ namespace NSurveyGizmo.Models
             JsonSerializer serializer)
         {
             var value = (SurveyQuestion)existingValue ?? new SurveyQuestion();
-            
-            while (reader.Read())
+            // Skip opening {
+            reader.Read();
+            while (reader.TokenType == JsonToken.PropertyName)
             {
-                if (reader.TokenType != JsonToken.PropertyName)
-                {
-                    continue;
-                }
                 var name = reader.Value.ToString();
                 reader.Read();
-                
-               var  property = typeof(SurveyQuestion).GetProperty(name) ??
+               
+                   var property = typeof(SurveyQuestion).GetProperty(name) ??
                                typeof(SurveyQuestion).GetProperties()
                                    .SingleOrDefault(p =>
                                    {
                                        return p.GetCustomAttributes(typeof(JsonPropertyAttribute), true)
                                            .Any(a => ((JsonPropertyAttribute)a).PropertyName == name);
                                    });
-                
-
 
                 if (property == null)
                 {
+                    reader.Read();
                     continue;
                 }
-                if (property.PropertyType == typeof(DateTime))
+                if (name == "varname")//varname returns either an object, a string array, or an empty array
                 {
-                    var propValDate = serializer.Deserialize(reader, typeof(string)).ToString();
-                    var noTimeZone = propValDate.Replace(propValDate.Substring(propValDate.Length - 4), "");
-                    var utc = noTimeZone + "Z";
-                    var utcDate = DateTime.Parse(utc);
-                    property.SetValue(value, utcDate, null);
-
-                }else if (property.PropertyType == typeof(QuestionOptions[]))
-                {
-                    var questions = serializer.Deserialize(reader) as JObject;
-                    if (questions != null)
+                    try
                     {
-                        Dictionary<string, object> results =
-                            JsonConvert.DeserializeObject<Dictionary<string, object>>(questions.ToString());
-
-                        var oList = new List<QuestionOptions>();
-
-                        foreach (var questionObject in results.Values)
+                        var propVal = serializer.Deserialize(reader, property.PropertyType);
+                       
+                        if (propVal != null)
                         {
-                            JObject questionJObject = JObject.Parse(questionObject.ToString());
-                            if (questionJObject["options"] != null)
-                            {
-                                Dictionary<string, object> questionOptions =
-                                    JsonConvert.DeserializeObject<Dictionary<string, object>>(questionJObject["options"]
-                                        .ToString());
-                                foreach (var optionObject in questionOptions.Values)
-                                {
-                                    JObject optionJObject = JObject.Parse(optionObject.ToString());
-                                    var o = new QuestionOptions();
-                                    o.id = (int) optionJObject["id"];
-                                    o.answer = (string) optionJObject["answer"];
-                                    o.option = (string) optionJObject["option"];
-                                    oList.Add(o);
-                                }
-                                property.SetValue(value, oList.ToArray(), null);
-                            }
+                            property.SetValue(value, propVal, null);
                         }
                     }
-                    
+                    catch (Exception e)
+                    {
+                        try
+                        {
+                            var propVal = serializer.Deserialize(reader, typeof(string[]));
+                            
+                            var strArr = (string[]) propVal;
+                            if (propVal != null)
+                            {
+                                var dict = new Dictionary<string, string>();
+                                dict.Add(strArr[0], strArr[0]);
+                                property.SetValue(value, dict, null);
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            reader.Skip();
+                        }
+                    }
+                }else if (name == "properties")
+                {
+                    var questionProperties = serializer.Deserialize(reader) as JObject;
+
+                    if (questionProperties != null) { 
+
+                        var qCodeField = new LocalizableString();
+                        if (value.varname != null && value.varname.Count > 0 && value.varname.Values.Any(x => !string.IsNullOrEmpty(x)))
+                        {
+                            qCodeField.English = value.varname.Values.First(x => !string.IsNullOrEmpty(x));
+                        }
+                        else
+                        {
+                            qCodeField.English = (string) (questionProperties["question_description"]?["English"] ?? "");
+                        }
+                        var p = new QuestionProperties()
+                        {
+                            option_sort = (bool) (questionProperties["option_sort"] ?? false),
+                            required = (bool) (questionProperties["required"] ?? false),
+                            hidden = (bool) (questionProperties["hidden"] ?? true),
+                            orientation = (string) (questionProperties["orientation"] ?? ""),
+                            question_description = qCodeField
+                        };
+                        property.SetValue(value, p, null);
+                    }
                 }
                 else
                 {
                     var propVal = serializer.Deserialize(reader, property.PropertyType);
                     property.SetValue(value, propVal, null);
                 }
-
-            }
-            // Skip the , or } if we are at the end
-            while(reader.TokenType != JsonToken.EndObject)
-            {
+                // Skip the , or } if we are at the end
                 reader.Read();
             }
+
             return value;
         }
 

@@ -16,7 +16,7 @@ namespace NSurveyGizmo.Models
     {
         public override bool CanConvert(Type objectType)
         {
-            return objectType == typeof(Result);
+            return objectType == typeof(SurveyResponse);
         }
 
         public override bool CanRead => true;
