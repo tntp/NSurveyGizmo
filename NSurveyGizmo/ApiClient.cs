@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Runtime.InteropServices.ComTypes;
 using System.Text;
 using NLog;
 using NSurveyGizmo.Models;
@@ -28,10 +29,42 @@ namespace NSurveyGizmo
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
         #region questions
-
+        public class TupleList<T1, T2, T3> : List<Tuple<T1, T2, T3>>
+        {
+            public void Add(T1 item, T2 item2, T3 item3)
+            {
+                Add(new Tuple<T1, T2, T3>(item, item2, item3));
+            }
+        }
         public List<SurveyQuestion> GetQuestions(int surveyId, bool getAllPages = true)
         {
-            return GetData<SurveyQuestion>($"survey/{surveyId}/surveyquestion", getAllPages, true);
+            var results = GetData<SurveyQuestion>($"survey/{surveyId}/surveyquestion", getAllPages, true);
+            var tableQuestionCodes = new TupleList<int, int, string>();//master question id, sub question id, question code
+            foreach (var result in results)
+            {
+                if (result.sub_questions != null && result.varname != null)
+                {
+                    foreach (var varname in result.varname)
+                    {
+                        tableQuestionCodes.Add(result.id, Convert.ToInt32(varname.Key), varname.Value);
+                    }
+                }
+            }
+            foreach (var result in results)
+            {
+                result.properties = new QuestionProperties();
+                result.properties.question_description = new LocalizableString();
+                foreach(var tup in tableQuestionCodes)
+                {
+                    if (tup.Item2 == result.id)
+                    {
+                        result.properties.question_description.English = tup.Item3;
+                        result.master_question_id = tup.Item1;
+                    }
+                        
+                }
+            }
+            return results;
         }
         public SurveyQuestion CreateQuestion(int surveyId, int surveyPage, string type, LocalizableString title, string shortName, QuestionProperties props)
         {
@@ -239,24 +272,46 @@ namespace NSurveyGizmo
 
             return ResultOk(results);
         }
-        public bool UpdateQcodeOfSurveyQuestion(int surveyId, int questionId, string qCode)
-        {           
-            var url = new StringBuilder($"survey/{surveyId}/surveyquestion/{questionId}?_method=POST");
-            var questionOptions = GetQuestionOptions(surveyId, questionId);
-            if (questionOptions.Count > 0)
+        public bool UpdateQcodeOfSurveyQuestion(int surveyId, int questionId, string qCode, int? masterQuesitonId = null)
+        {
+            var url = new StringBuilder();
+            if (masterQuesitonId == null)
             {
-                foreach (var op in questionOptions)
+                url.Append($"survey/{surveyId}/surveyquestion/{questionId}?_method=POST");
+                var questionOptions = GetQuestionOptions(surveyId, questionId);
+           
+                if (questionOptions.Count > 0)
                 {
-                    url.Append($"&varname[{op.id}]={Uri.EscapeDataString(qCode)}");
+                    foreach (var op in questionOptions)
+                    {
+                        url.Append($"&varname[{op.id}]={Uri.EscapeDataString(qCode)}");
+                    }
+                }
+                else
+                {
+                    url.Append($"&varname={Uri.EscapeDataString(qCode)}");
                 }
             }
             else
             {
-                url.Append($"&varname={Uri.EscapeDataString(qCode)}");
+                var masterQuestion = GetQuestions(surveyId).FirstOrDefault(x => x.id == masterQuesitonId);
+                url.Append($"survey/{surveyId}/surveyquestion/{masterQuesitonId}?_method=POST");
+                if (masterQuestion != null)
+                {
+                    foreach (var subQ in masterQuestion.varname)
+                    {
+                        if (Convert.ToInt32(subQ.Key) == questionId)
+                        {
+                            url.Append($"&varname[{questionId}]={Uri.EscapeDataString(qCode)}");
+                        }
+                        else
+                        {
+                            url.Append($"&varname[{subQ.Key}]={Uri.EscapeDataString(subQ.Value)}");
+                        }
+                    }
+                }
             }
-
             var results = GetData<Result>(url.ToString(), nonQuery: true);
-
             return ResultOk(results);
         }
         #endregion
