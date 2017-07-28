@@ -29,41 +29,32 @@ namespace NSurveyGizmo
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
         #region questions
-        public class TupleList<T1, T2, T3> : List<Tuple<T1, T2, T3>>
-        {
-            public void Add(T1 item, T2 item2, T3 item3)
-            {
-                Add(new Tuple<T1, T2, T3>(item, item2, item3));
-            }
-        }
+
         public List<SurveyQuestion> GetQuestions(int surveyId, bool getAllPages = true)
         {
             var results = GetData<SurveyQuestion>($"survey/{surveyId}/surveyquestion", getAllPages, true);
-            var tableQuestionCodes = new TupleList<int, int, string>();//master question id, sub question id, question code
+            var tableQuestionCodes = new List<QuestionData>();
+
+            foreach (var result in results.Where(r => r.sub_questions != null && r.varname != null))
+            {
+                tableQuestionCodes.AddRange(result.varname.Select(v => new QuestionData
+                {
+                    MasterQuestionId = result.id,
+                    SubQuestionId = Convert.ToInt32(v.Key),
+                    QuestionCode = v.Value
+                }));
+            }
+
             foreach (var result in results)
             {
-                if (result.sub_questions != null && result.varname != null)
+                result.properties = new QuestionProperties {question_description = new LocalizableString()};
+                foreach(var tup in tableQuestionCodes.Where(t => t.SubQuestionId != result.id).ToList())
                 {
-                    foreach (var varname in result.varname)
-                    {
-                        tableQuestionCodes.Add(result.id, Convert.ToInt32(varname.Key), varname.Value);
-                    }
+                    result.properties.question_description.English = tup.QuestionCode;
+                    result.master_question_id = tup.MasterQuestionId;
                 }
             }
-            foreach (var result in results)
-            {
-                result.properties = new QuestionProperties();
-                result.properties.question_description = new LocalizableString();
-                foreach(var tup in tableQuestionCodes)
-                {
-                    if (tup.Item2 == result.id)
-                    {
-                        result.properties.question_description.English = tup.Item3;
-                        result.master_question_id = tup.Item1;
-                    }
-                        
-                }
-            }
+
             return results;
         }
         public SurveyQuestion CreateQuestion(int surveyId, int surveyPage, string type, LocalizableString title, string shortName, QuestionProperties props)

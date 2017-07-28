@@ -1,11 +1,8 @@
 ﻿using Newtonsoft.Json;
 using System;
-using System.CodeDom;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
-using Newtonsoft.Json.Serialization;
-using NSurveyGizmo.Models;
 
 namespace NSurveyGizmo.Models
 {
@@ -149,8 +146,6 @@ namespace NSurveyGizmo.Models
         public string value { get; set; }
         public bool isResponseAComment { get; set; }
         public string questionOptionTitle { get; set; }
-
-        public SurveyResponseQuestionData() {}
 
         public SurveyResponseQuestionData(int? questionId, string questionShortName, int? questionOptionIdentifier,
             string value, bool isResponseAComment, string questionOptionTitle)
