@@ -269,19 +269,7 @@ namespace NSurveyGizmo
             if (masterQuesitonId == null)
             {
                 url.Append($"survey/{surveyId}/surveyquestion/{questionId}?_method=POST");
-                var questionOptions = GetQuestionOptions(surveyId, questionId);
-           
-                if (questionOptions.Count > 0)
-                {
-                    foreach (var op in questionOptions)
-                    {
-                        url.Append($"&varname[{op.id}]={Uri.EscapeDataString(qCode)}");
-                    }
-                }
-                else
-                {
-                    url.Append($"&varname={Uri.EscapeDataString(qCode)}");
-                }
+                url.Append($"&varname={Uri.EscapeDataString(qCode)}");
             }
             else
             {
