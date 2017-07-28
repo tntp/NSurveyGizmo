@@ -48,7 +48,7 @@ namespace NSurveyGizmo
             foreach (var result in results)
             {
                 result.properties = new QuestionProperties {question_description = new LocalizableString()};
-                foreach(var tup in tableQuestionCodes.Where(t => t.SubQuestionId != result.id).ToList())
+                foreach(var tup in tableQuestionCodes.Where(t => t.SubQuestionId == result.id).ToList())
                 {
                     result.properties.question_description.English = tup.QuestionCode;
                     result.master_question_id = tup.MasterQuestionId;
