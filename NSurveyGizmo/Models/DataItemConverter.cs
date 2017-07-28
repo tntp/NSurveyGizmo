@@ -84,18 +84,20 @@ namespace NSurveyGizmo.Models
                 }
                 else if (property.PropertyType == typeof(List<SurveyUrl>))
                 {
-                    var urlName = name;
-                    var urlParamArray = serializer.Deserialize<string[]>(reader);
-                    foreach (var param in urlParamArray)
-                    {
-                        var su = new SurveyUrl
-                        {
-                            Name = urlName,
-                            Value = param
-                        };
-                        value.SurveyUrls.Add(su);
-                    }
+                    var urls = serializer.Deserialize(reader) as JObject;
+                    Dictionary<string, object> results =
+                        JsonConvert.DeserializeObject<Dictionary<string, object>>(urls?.ToString());
 
+                    foreach (var urlParam in results.Values)
+                    {
+                        JObject urlJObject = JObject.Parse(urlParam.ToString());
+                        var q = new SurveyUrl()
+                        {
+                            Name = (string)urlJObject["key"],
+                            Value = (string)urlJObject["value"]
+                        };
+                        value.SurveyUrls.Add(q);
+                    }
                 }
                 else if (property.PropertyType == typeof(List<SurveyGeoData>))
                 {
