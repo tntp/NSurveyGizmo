@@ -168,8 +168,8 @@ namespace NSurveyGizmo.Models
                         {
                             var sqh = new SurveyQuestionHidden
                             {
-                                QuestionID = int.Parse(name),
-                                QuestionResponse = q.QuestionResponse
+                                QuestionID = q.id,
+                                QuestionResponse = q.QuestionResponse ?? ""
                             };
                             value.SurveyQuestionHiddens.Add(sqh);
                         }else if (q.shown)

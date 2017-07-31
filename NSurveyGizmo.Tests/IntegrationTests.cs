@@ -604,7 +604,7 @@ namespace NSurveyGizmo.Tests
             Assert.IsTrue(updatedList);
             Assert.AreEqual(getUpdatedSurveyContactList.Count, 2);
         }
-      
+
         [TestMethod()]
         public void Create_Survey_Response_Test()
         {
