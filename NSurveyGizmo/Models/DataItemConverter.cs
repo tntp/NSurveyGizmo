@@ -152,6 +152,7 @@ namespace NSurveyGizmo.Models
                             question = (string) questionJObject["question"],
                             section_id = (int) questionJObject["section_id"],
                             QuestionResponse = (string) questionJObject["answer"]
+
                         };
                         if (questionJObject["answer_id"] != null)
                         {
@@ -221,7 +222,97 @@ namespace NSurveyGizmo.Models
 
                             q.options = oList.ToArray();
                         }
-                        
+                        if (questionJObject["subquestions"] != null)
+                        {
+                            var subquestions = (JObject)questionJObject["subquestions"];
+                            Dictionary<string, object> subquestionsObjectDictionary =
+                                JsonConvert.DeserializeObject<Dictionary<string, object>>(subquestions?.ToString());
+                            foreach (var subquestionsObject in subquestionsObjectDictionary.Values)
+                            {
+                                JObject questionJObjectagain = JObject.Parse(subquestionsObject.ToString());
+                                var qsub = new SurveyQuestion
+                                {
+                                    id = (int)questionJObjectagain["id"],
+                                    _subtype = (string)questionJObjectagain["type"],
+                                    question = (string)questionJObjectagain["question"],
+                                    QuestionResponse = (string)questionJObjectagain["answer"],
+                                    master_question_id = (int?)questionJObjectagain["parent"] ?? 0
+                                };
+                                if (questionJObjectagain["answer_id"] != null)
+                                {
+                                    qsub.answer_id = (int)questionJObjectagain["answer_id"];
+                                    var sv = new SurveyVariable()
+                                    {
+                                        SurveyVariableID = qsub.id,
+                                        Value = qsub.answer_id.ToString()
+                                    };
+                                    value.SurveyVariables.Add(sv);
+                                }
+                                if (q.shown == false || q._type == "hidden")
+                                {
+                                    var sqh = new SurveyQuestionHidden
+                                    {
+                                        QuestionID = qsub.id,
+                                        QuestionResponse = qsub.QuestionResponse ?? ""
+                                    };
+                                    value.SurveyQuestionHiddens.Add(sqh);
+                                }
+                                else if (q.shown)
+                                {
+                                    var svs = new SurveyVariableShown()
+                                    {
+                                        Name = qsub.id + "-shown",
+                                        Value = "1"//meaning true
+                                    };
+                                    value.SurveyVariableShowns.Add(svs);
+                                }
+                                if (questionJObjectagain["options"] != null)
+                                {
+                                    Dictionary<string, object> subquestionOptions =
+                                        JsonConvert.DeserializeObject<Dictionary<string, object>>(
+                                            questionJObjectagain["options"]
+                                                .ToString());
+                                    foreach (var optionObject in subquestionOptions.Values)
+                                    {
+                                        JObject optionJObject = JObject.Parse(optionObject.ToString());
+                                        var o = new QuestionOptions
+                                        {
+                                            id = (int)optionJObject["id"],
+                                            answer = (string)optionJObject["answer"],
+                                            option = (string)optionJObject["option"]
+                                        };
+                                        oList.Add(o);
+
+                                        var soObject = new SurveyQuestionOption
+                                        {
+                                            id = (int)optionJObject["id"],
+                                            OptionID = (int)optionJObject["id"],
+                                            QuestionResponse = (string)optionJObject["answer"],
+                                            surveyID = 0,
+                                            title = new LocalizableString { English = (string)optionJObject["option"] },
+                                            value = (string)optionJObject["option"],
+                                            QuestionID = q.id
+                                        };
+                                        questionOptionAnser.QuestionResponse = soObject.QuestionResponse;
+                                        var sqmObject = new SurveyQuestionMulti()
+                                        {
+                                            OptionID = (int)optionJObject["id"],
+                                            QuestionResponse = (string)optionJObject["answer"],
+                                            QuestionID = qsub.id
+                                        };
+
+                                        soList.Add(soObject);
+                                        value.SurveyQuestionMulties.Add(sqmObject);
+                                    }
+
+                                    q.options = oList.ToArray();
+                                }
+                                value.AddQuestion(qsub.id,
+                                    qsub.QuestionResponse ?? questionOptionAnser.QuestionResponse);
+                                qList.Add(qsub);
+                            }
+                        }
+
                         value.AddQuestion(q.id, q.QuestionResponse ?? questionOptionAnser.QuestionResponse);
                         qList.Add(q);
                     }
