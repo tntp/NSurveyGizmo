@@ -604,7 +604,7 @@ namespace NSurveyGizmo.Tests
             Assert.IsTrue(updatedList);
             Assert.AreEqual(getUpdatedSurveyContactList.Count, 2);
         }
-      
+
         [TestMethod()]
         public void Create_Survey_Response_Test()
         {
@@ -870,6 +870,7 @@ namespace NSurveyGizmo.Tests
             Assert.IsNotNull(allResponses[0].datesubmitted);
 
         }
+
         [TestMethod()]
         public void Update_Qcode_test()
         {
@@ -896,7 +897,7 @@ namespace NSurveyGizmo.Tests
             var q2 = apiClient.CreateQuestion(surveyId, 1, "menu", secondQuestionTitle, "q2Short", null);
             var q3 = apiClient.CreateQuestion(surveyId, 1, "essay", thirdQuestionTitle, "q3Short", null);
             var q4 = apiClient.CreateQuestion(surveyId, 1, "checkbox", fourthQuestionTitle, "q4Short", null);
-            var q5 = apiClient.CreateQuestion(surveyId, 1, "menu", fifthQuestionTitle, "q5Short", null);
+            var q5 = apiClient.CreateQuestion(surveyId, 1, "radio", fifthQuestionTitle, "q5Short", null);
 
             ////create quesiton options for checkbox
             var yesNoOption = new LocalizableString("Yes");

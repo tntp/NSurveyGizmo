@@ -1,5 +1,6 @@
 ﻿using System;
 using System.CodeDom;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -12,6 +13,7 @@ namespace NSurveyGizmo.Models
     {
         [Key]
         public int id { get; set; }
+        public int master_question_id { get; set; }
         public int page { get; set; }
         public LocalizableString title { get; set; }
         [JsonProperty("type")]
@@ -30,11 +32,12 @@ namespace NSurveyGizmo.Models
         public string QuestionResponse { get; set; }
         public QuestionProperties properties { get; set; }
         public QuestionOptions[] options { get; set; }
+        public SurveyQuestion[] sub_questions { get; set; }
 
         public bool Equals(SurveyQuestion sq)
         {
             return id               == sq.id
-                && page       == sq.page
+                && page             == sq.page
                 && _subtype         == sq._subtype
                 && _type            == sq._type
                 && shortname        == sq.shortname
@@ -78,5 +81,6 @@ public class QuestionProperties
             return id == qo.id && title.Equals(qo.title);
         }
     }
-    
+  
+
 }

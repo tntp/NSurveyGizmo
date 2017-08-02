@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Runtime.InteropServices.ComTypes;
 using System.Text;
 using NLog;
 using NSurveyGizmo.Models;
@@ -31,7 +32,30 @@ namespace NSurveyGizmo
 
         public List<SurveyQuestion> GetQuestions(int surveyId, bool getAllPages = true)
         {
-            return GetData<SurveyQuestion>($"survey/{surveyId}/surveyquestion", getAllPages, true);
+            var results = GetData<SurveyQuestion>($"survey/{surveyId}/surveyquestion", getAllPages, true);
+            var tableQuestionCodes = new List<QuestionData>();
+
+            foreach (var result in results.Where(r => r.sub_questions != null && r.varname != null))
+            {
+                tableQuestionCodes.AddRange(result.varname.Select(v => new QuestionData
+                {
+                    MasterQuestionId = result.id,
+                    SubQuestionId = Convert.ToInt32(v.Key),
+                    QuestionCode = v.Value
+                }));
+            }
+
+            foreach (var result in results)
+            {
+                foreach(var tup in tableQuestionCodes.Where(t => t.SubQuestionId == result.id).ToList())
+                {
+                    result.properties = new QuestionProperties { question_description = new LocalizableString() };
+                    result.properties.question_description.English = tup.QuestionCode;
+                    result.master_question_id = tup.MasterQuestionId;
+                }
+            }
+
+            return results;
         }
         public SurveyQuestion CreateQuestion(int surveyId, int surveyPage, string type, LocalizableString title, string shortName, QuestionProperties props)
         {
@@ -239,24 +263,34 @@ namespace NSurveyGizmo
 
             return ResultOk(results);
         }
-        public bool UpdateQcodeOfSurveyQuestion(int surveyId, int questionId, string qCode)
-        {           
-            var url = new StringBuilder($"survey/{surveyId}/surveyquestion/{questionId}?_method=POST");
-            var questionOptions = GetQuestionOptions(surveyId, questionId);
-            if (questionOptions.Count > 0)
+        public bool UpdateQcodeOfSurveyQuestion(int surveyId, int questionId, string qCode, int? masterQuesitonId = null)
+        {
+            var url = new StringBuilder();
+            if (masterQuesitonId == null)
             {
-                foreach (var op in questionOptions)
-                {
-                    url.Append($"&varname[{op.id}]={Uri.EscapeDataString(qCode)}");
-                }
+                url.Append($"survey/{surveyId}/surveyquestion/{questionId}?_method=POST");
+                url.Append($"&varname={Uri.EscapeDataString(qCode)}");
             }
             else
             {
-                url.Append($"&varname={Uri.EscapeDataString(qCode)}");
+                var masterQuestion = GetQuestions(surveyId).FirstOrDefault(x => x.id == masterQuesitonId);
+                url.Append($"survey/{surveyId}/surveyquestion/{masterQuesitonId}?_method=POST");
+                if (masterQuestion != null)
+                {
+                    foreach (var subQ in masterQuestion.varname)
+                    {
+                        if (Convert.ToInt32(subQ.Key) == questionId)
+                        {
+                            url.Append($"&varname[{questionId}]={Uri.EscapeDataString(qCode)}");
+                        }
+                        else
+                        {
+                            url.Append($"&varname[{subQ.Key}]={Uri.EscapeDataString(subQ.Value)}");
+                        }
+                    }
+                }
             }
-
             var results = GetData<Result>(url.ToString(), nonQuery: true);
-
             return ResultOk(results);
         }
         #endregion

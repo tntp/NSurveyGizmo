@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
@@ -79,7 +80,7 @@ namespace NSurveyGizmo.Models
                     if (questionProperties != null) { 
 
                         var qCodeField = new LocalizableString();
-                        if (value.varname != null && value.varname.Count > 0 && value.varname.Values.Any(x => !string.IsNullOrEmpty(x)))
+                        if (value.varname != null && value.varname.Count > 0 && value.varname.Values.Any(x => !string.IsNullOrEmpty(x)) && value.sub_questions == null)
                         {
                             qCodeField.English = value.varname.Values.First(x => !string.IsNullOrEmpty(x));
                         }
@@ -106,7 +107,7 @@ namespace NSurveyGizmo.Models
                 // Skip the , or } if we are at the end
                 reader.Read();
             }
-
+           
             return value;
         }
 
