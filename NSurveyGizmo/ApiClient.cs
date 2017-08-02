@@ -267,8 +267,6 @@ namespace NSurveyGizmo
                 url.Append($"&varname={Uri.EscapeDataString(qCode)}");
             }
 
-            
-
             var results = GetData<Result>(url.ToString(), nonQuery: true);
             return ResultOk(results);
         }

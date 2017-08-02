@@ -154,7 +154,7 @@ namespace NSurveyGizmo.Models
                         {
                             id = (int) questionJObject["id"],
                             _type = (string) questionJObject["base_type"],
-                            _subtype = (string)questionJObject["type"],
+                            _subtype = (string) questionJObject["type"],
                             question = (string) questionJObject["question"],
                             section_id = (int) questionJObject["section_id"],
                             QuestionResponse = (string) questionJObject["answer"]
@@ -260,13 +260,15 @@ namespace NSurveyGizmo.Models
 
                                 soList.Add(soObject);
                                 value.SurveyQuestionMulties.Add(sqmObject);
-                                value.AddQuestion(qoptionquestion.id,
-                                    qoptionquestion.QuestionResponse ?? questionOptionAnser.QuestionResponse);
+                                value.AddQuestion(qoptionquestion.id, questionOptionAnser.QuestionResponse);
                                 qList.Add(qoptionquestion);
                             }
                             q.options = oList.ToArray();
                         }
-                        value.AddQuestion(q.id, q.QuestionResponse ?? questionOptionAnser.QuestionResponse);
+                        if (!string.IsNullOrEmpty(q.QuestionResponse))
+                        {
+                            value.AddQuestion(q.id, q.QuestionResponse);
+                        }
                         qList.Add(q);
                     }
                     //value.SurveyQuestionOptions = soList; the v4 return value was 0 for this field so im not going to add them for v5
