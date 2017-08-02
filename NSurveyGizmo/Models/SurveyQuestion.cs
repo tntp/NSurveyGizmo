@@ -13,7 +13,7 @@ namespace NSurveyGizmo.Models
     {
         [Key]
         public int id { get; set; }
-        public int master_question_id { get; set; }
+        public int? master_question_id { get; set; }
         public int page { get; set; }
         public LocalizableString title { get; set; }
         [JsonProperty("type")]

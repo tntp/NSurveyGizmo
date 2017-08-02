@@ -33,29 +33,17 @@ namespace NSurveyGizmo
         public List<SurveyQuestion> GetQuestions(int surveyId, bool getAllPages = true)
         {
             var results = GetData<SurveyQuestion>($"survey/{surveyId}/surveyquestion", getAllPages, true);
-            var tableQuestionCodes = new List<QuestionData>();
 
-            foreach (var result in results.Where(r => r.sub_questions != null && r.varname != null))
-            {
-                tableQuestionCodes.AddRange(result.varname.Select(v => new QuestionData
-                {
-                    MasterQuestionId = result.id,
-                    SubQuestionId = Convert.ToInt32(v.Key),
-                    QuestionCode = v.Value
-                }));
-            }
-
+            var subQuesitonList = new List<SurveyQuestion>();
             foreach (var result in results)
             {
-                foreach(var tup in tableQuestionCodes.Where(t => t.SubQuestionId == result.id).ToList())
+                if (result.sub_questions != null)
                 {
-                    result.properties = new QuestionProperties { question_description = new LocalizableString() };
-                    result.properties.question_description.English = tup.QuestionCode;
-                    result.master_question_id = tup.MasterQuestionId;
+                    subQuesitonList.AddRange(result.sub_questions);
                 }
             }
-
-            return results;
+            var subQuesitonListIds = subQuesitonList.Select(i => i.id).ToList();
+            return results.Where(i => !subQuesitonListIds.Contains(i.id)).ToList();
         }
         public SurveyQuestion CreateQuestion(int surveyId, int surveyPage, string type, LocalizableString title, string shortName, QuestionProperties props)
         {
@@ -263,33 +251,48 @@ namespace NSurveyGizmo
 
             return ResultOk(results);
         }
-        public bool UpdateQcodeOfSurveyQuestion(int surveyId, int questionId, string qCode, int? masterQuesitonId = null)
+        public bool UpdateQcodeOfSurveyQuestion(int surveyId, int questionId, string qCode)
         {
             var url = new StringBuilder();
-            if (masterQuesitonId == null)
+            var qtype = GetQuestions(surveyId).Where(i => i.id == questionId).Select(q => q._subtype).First();
+
+            if (qtype.ToLower() == "textbox" || qtype.ToLower() == "essay")
+            {
+                url.Append($"survey/{surveyId}/surveyquestion/{questionId}?_method=POST");
+                url.Append($"&varname[]={Uri.EscapeDataString(qCode)}");
+            }
+            else
             {
                 url.Append($"survey/{surveyId}/surveyquestion/{questionId}?_method=POST");
                 url.Append($"&varname={Uri.EscapeDataString(qCode)}");
             }
-            else
-            {
+
+            
+
+            var results = GetData<Result>(url.ToString(), nonQuery: true);
+            return ResultOk(results);
+        }
+        public bool UpdateQcodeOfSurveyQuestion(int surveyId, Dictionary<int, string> qCodes, int masterQuesitonId)
+        {
+            var url = new StringBuilder();
+           
                 var masterQuestion = GetQuestions(surveyId).FirstOrDefault(x => x.id == masterQuesitonId);
                 url.Append($"survey/{surveyId}/surveyquestion/{masterQuesitonId}?_method=POST");
+           
                 if (masterQuestion != null)
                 {
-                    foreach (var subQ in masterQuestion.varname)
+                   var masterQuestionQcodes = masterQuestion.varname;
+                   foreach (var qCode in qCodes)
+                    { 
+                        url.Append($"&varname[{qCode.Key}]={Uri.EscapeDataString(qCode.Value)}");
+                        masterQuestionQcodes.Remove(qCode.Key.ToString());
+                    }
+                   foreach (var subQ in masterQuestionQcodes)
                     {
-                        if (Convert.ToInt32(subQ.Key) == questionId)
-                        {
-                            url.Append($"&varname[{questionId}]={Uri.EscapeDataString(qCode)}");
-                        }
-                        else
-                        {
-                            url.Append($"&varname[{subQ.Key}]={Uri.EscapeDataString(subQ.Value)}");
-                        }
+                        url.Append($"&varname[{subQ.Key}]={Uri.EscapeDataString(subQ.Value)}");
                     }
                 }
-            }
+            
             var results = GetData<Result>(url.ToString(), nonQuery: true);
             return ResultOk(results);
         }
