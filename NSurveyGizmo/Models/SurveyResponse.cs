@@ -28,8 +28,8 @@ namespace NSurveyGizmo.Models
         public List<SurveyQuestion> SurveyQuestions { get; set; } = new List<SurveyQuestion>();
         [JsonProperty("url_variables")]
         public List<SurveyUrl> SurveyUrls { get; set; } = new List<SurveyUrl>();
-        public List<SurveyGeoData> SurveyGeoDatas { get; set; } = new List<SurveyGeoData>();
         public List<SurveyGeoData> data_quality { get; set; } = new List<SurveyGeoData>();
+        public List<SurveyGeoData> SurveyGeoDatas { get; set; } = new List<SurveyGeoData>();
         public List<SurveyVariable> SurveyVariables { get; set; } = new List<SurveyVariable>();
         public List<SurveyVariableShown> SurveyVariableShowns { get; set; } = new List<SurveyVariableShown>();
         public List<SurveyQuestionHidden> SurveyQuestionHiddens { get; set; } = new List<SurveyQuestionHidden>();

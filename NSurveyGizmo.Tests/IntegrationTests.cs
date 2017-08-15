@@ -830,8 +830,6 @@ namespace NSurveyGizmo.Tests
             Assert.AreEqual(allResponses[0].SurveyQuestions[0].QuestionResponse, "Both");
             Assert.AreEqual(allResponses[0].SurveyQuestions[0].id, 6);
 
-            Assert.AreEqual(allResponses[0].SurveyUrls.Count, 0);
-
             Assert.AreEqual(allResponses[0].SurveyVariableShowns.Count, 5);
             //Assert.AreEqual(allResponses[0].SurveyVariableShowns.Count, 6);
             
