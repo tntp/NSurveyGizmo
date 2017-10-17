@@ -162,11 +162,11 @@ namespace NSurveyGizmo.Models
                         };
                         if (questionJObject["answer_id"] != null)
                         {
-                            q.answer_id = (int) questionJObject["answer_id"];
-                            var sv = new SurveyVariable()
+                            q.answer_id = (string) questionJObject["answer_id"];
+                            var sv = new SurveyVariable
                             {
                                 SurveyVariableID = q.id,
-                                Value = q.answer_id.ToString()
+                                Value = q.answer_id,
                             };
                             value.SurveyVariables.Add(sv);
                         }
@@ -206,11 +206,11 @@ namespace NSurveyGizmo.Models
                                 };
                                 if (optionJObject["answer_id"] != null)
                                 {
-                                    qoptionquestion.answer_id = (int)optionJObject["answer_id"];
+                                    qoptionquestion.answer_id = (string)optionJObject["answer_id"];
                                     var sv = new SurveyVariable()
                                     {
                                         SurveyVariableID = qoptionquestion.id,
-                                        Value = qoptionquestion.answer_id.ToString()
+                                        Value = qoptionquestion.answer_id,
                                     };
                                     value.SurveyVariables.Add(sv);
                                 }
@@ -236,6 +236,7 @@ namespace NSurveyGizmo.Models
                                 {
                                     id = (int) optionJObject["id"],
                                     answer = (string) optionJObject["answer"],
+                                    value = (string) optionJObject["value"],
                                     option = (string) optionJObject["option"]
                                 };
                                 oList.Add(o);
@@ -247,7 +248,7 @@ namespace NSurveyGizmo.Models
                                     QuestionResponse = (string) optionJObject["answer"],
                                     surveyID = 0,
                                     title = new LocalizableString {English = (string) optionJObject["option"]},
-                                    value = (string) optionJObject["option"],
+                                    value = (string) optionJObject["value"],
                                     QuestionID = q.id
                                 };
                                 questionOptionAnser.QuestionResponse = soObject.QuestionResponse;

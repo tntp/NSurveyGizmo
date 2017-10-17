@@ -26,7 +26,7 @@ namespace NSurveyGizmo.Models
         public string _type { get; set; }
         public string shortname { get; set; }
         public int section_id { get; set; }
-        public int? answer_id { get; set; }
+        public string answer_id { get; set; }
         public bool shown { get; set; }
         [JsonProperty("answer")]
         public string QuestionResponse { get; set; }
@@ -40,6 +40,7 @@ namespace NSurveyGizmo.Models
                 && page             == sq.page
                 && _subtype         == sq._subtype
                 && _type            == sq._type
+                && value            == sq.value
                 && shortname        == sq.shortname
                 && QuestionResponse == sq.QuestionResponse
                 && title.Equals(sq.title)
@@ -73,6 +74,7 @@ public class QuestionProperties
         public string shortName { get; set; }
         public string option { get; set; }
         public string answer { get; set; }
+        public string value { get; set; }
         public LocalizableString title { get; set; }
 
 
