@@ -48,7 +48,17 @@ namespace NSurveyGizmo
         public SurveyQuestion CreateQuestion(int surveyId, int surveyPage, string type, LocalizableString title, string shortName, QuestionProperties props)
         {
             var url = new StringBuilder($"survey/{surveyId}/surveypage/{surveyPage}/surveyquestion?_method=PUT");
+            return CreateQuestion(url, type, title, shortName, props);
+        }
+        
+        public SurveyQuestion CreateQuestionRow(int surveyId, int surveyPage, int parentQuestionId, string type, LocalizableString title, string shortName, QuestionProperties props)
+        {
+            var url = new StringBuilder($"survey/{surveyId}/surveypage/{surveyPage}/surveyquestion/{parentQuestionId}?_method=PUT");
+            return CreateQuestion(url, type, title, shortName, props);
+        }
 
+        private SurveyQuestion CreateQuestion(StringBuilder url,string type, LocalizableString title, string shortName, QuestionProperties props)
+        {
             if (!string.IsNullOrEmpty(shortName))
             {
                 url.Append($"&shortname={Uri.EscapeDataString(shortName)}");
@@ -72,7 +82,7 @@ namespace NSurveyGizmo
             var response = GetData<SurveyQuestion>(url.ToString());
             return response != null && response.Count > 0 ? response[0] : null;
         }
-       
+
         #endregion
 
         #region Question Options
@@ -103,6 +113,7 @@ namespace NSurveyGizmo
             var response = GetData<Result>(url.ToString());
             return response != null && response.Count > 0 ? response[0].id : -1;
         }
+
         public bool DeleteSurveyOption(int surveyId, int optionId, int questionId)
         {
             var url = new StringBuilder($"survey/{surveyId}/surveyquestion/{questionId}/surveyoption/{optionId}?_method=DELETE");
@@ -126,10 +137,6 @@ namespace NSurveyGizmo
         public SurveyResponse CreateSurveyResponse(int surveyId, string status, List<SurveyResponseQuestionData> questionData)
         {
             var url = new StringBuilder($"survey/{surveyId}/surveyresponse?_method=PUT");
-            //if (!string.IsNullOrEmpty(status))
-            //{
-            //    url.Append($"&status={Uri.EscapeDataString(status)}"); //breaks the request for some reason
-            //}
             foreach (var sd in questionData)
             {
               var responseFormatted = FormatSurveyQuestionData(sd.questionId, sd.questionShortName, sd.questionOptionIdentifier, sd.value, sd.isResponseAComment, sd.questionOptionTitle);
@@ -270,30 +277,27 @@ namespace NSurveyGizmo
             var results = GetData<Result>(url.ToString(), nonQuery: true);
             return ResultOk(results);
         }
+
         public bool UpdateQcodeOfSurveyQuestion(int surveyId, Dictionary<int, string> qCodes, int masterQuesitonId)
         {
             var url = new StringBuilder();
-           
-                var masterQuestion = GetQuestions(surveyId).FirstOrDefault(x => x.id == masterQuesitonId);
-                url.Append($"survey/{surveyId}/surveyquestion/{masterQuesitonId}?_method=POST");
-           
-                if (masterQuestion != null)
-                {
-                   var masterQuestionQcodes = masterQuestion.varname;
-                   foreach (var qCode in qCodes)
-                    { 
-                        url.Append($"&varname[{qCode.Key}]={Uri.EscapeDataString(qCode.Value)}");
-                        masterQuestionQcodes.Remove(qCode.Key.ToString());
-                    }
-                   foreach (var subQ in masterQuestionQcodes)
-                    {
-                        url.Append($"&varname[{subQ.Key}]={Uri.EscapeDataString(subQ.Value)}");
-                    }
-                }
+
+            var masterQuestion = GetQuestions(surveyId).FirstOrDefault(x => x.id == masterQuesitonId);
+            if (masterQuestion == null) return false;
+
+            url.Append($"survey/{surveyId}/surveyquestion/{masterQuesitonId}?_method=POST");
             
+            //Create the array based on new qCodes
+            foreach (var subQ in qCodes)
+            {
+                url.Append($"&varname[{subQ.Key}]={Uri.EscapeDataString(subQ.Value)}");
+            }
+
+            //This will remove any existing codes and add new ones
             var results = GetData<Result>(url.ToString(), nonQuery: true);
             return ResultOk(results);
         }
+
         #endregion
 
         #region email messages
