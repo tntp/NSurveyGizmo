@@ -4,7 +4,6 @@ using System.Net;
 using System.Threading;
 using System.Xml;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 namespace NSurveyGizmo
 {
@@ -98,32 +97,8 @@ namespace NSurveyGizmo
             using (var sr = new StreamReader(responseStream))
             {
                 var result = sr.ReadToEnd();
-               
                 return JsonConvert.DeserializeObject<T>(result);
-               
             }
-
-            // TODO: use RestSharp as below (might want to put this in ApiClient)
-            //var uri = new Uri(url);
-
-            //var client = new RestClient(uri.GetLeftPart(UriPartial.Authority));
-            //client.AddHandler("application/json", new CustomDeserializer());
-
-            //var request = new RestRequest(uri.PathAndQuery, Method.GET);
-
-            //return client.Execute<PagedResult<SurveyResponse>>(request);
         }
-
-        //public class CustomDeserializer : IDeserializer
-        //{
-        //    public T Deserialize<T>(IRestResponse response)
-        //    {
-        //        return JsonConvert.DeserializeObject<T>(response.Content);
-        //    }
-
-        //    public string RootElement { get; set; }
-        //    public string Namespace { get; set; }
-        //    public string DateFormat { get; set; }
-        //}
     }
 }

@@ -1,13 +1,9 @@
-﻿using NSurveyGizmo;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Newtonsoft.Json;
 using NSurveyGizmo.Models;
 using Contact = NSurveyGizmo.Models.Contact;
 using LocalizableString = NSurveyGizmo.Models.LocalizableString;
@@ -956,22 +952,8 @@ namespace NSurveyGizmo.Tests
             Assert.AreEqual(campaign, apiClient.GetCampaign(surveyId, campaign).id);
 
             var createNewContact = apiClient.CreateContact(surveyId, campaign, contact);
-
             var getUpdatedList = apiClient.GetCampaignContactList(surveyId, campaign);
             Assert.IsTrue(getUpdatedList.Count > 0);
-        }
-
-        [TestMethod()]
-        public void GetResponses()
-        {
-            var campaings = apiClient.GetCampaigns(3943141, true);
-
-            foreach (var surveyCampaign in campaings)
-            {
-                var contacts = apiClient.GetCampaignContactList(3943141, surveyCampaign.id);
-            }
-
-            var allResponses = apiClient.GetResponses(3943141, true);
         }
     }
 }

@@ -1,6 +1,4 @@
-﻿using System.Diagnostics;
-
-namespace NSurveyGizmo.Models
+﻿namespace NSurveyGizmo.Models
 {
     public class LocalizableString
     {
