@@ -10,7 +10,7 @@ using Newtonsoft.Json.Linq;
 
 namespace NSurveyGizmo.Models
 {
-    class DataItemConverterSurveyQuestion : JsonConverter
+    public class DataItemConverterSurveyQuestion : JsonConverter
     {
         public override bool CanConvert(Type objectType)
         {

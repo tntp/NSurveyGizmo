@@ -1,7 +1,4 @@
-﻿using System;
-using System.CodeDom;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using Newtonsoft.Json;
@@ -13,25 +10,43 @@ namespace NSurveyGizmo.Models
     {
         [Key]
         public int id { get; set; }
+
         public int? master_question_id { get; set; }
+
         public int page { get; set; }
+
         public LocalizableString title { get; set; }
+
         [JsonProperty("type")]
         public string _subtype { get; set; }
+
         public string value { get; set; }
+
         public Dictionary<string, string> varname { get; set; }
+
         public string[] description { get; set; }
+
         public string question { get; set; }
+
         [JsonProperty("base_type")]
         public string _type { get; set; }
+
         public string shortname { get; set; }
+
         public int section_id { get; set; }
+
         public string answer_id { get; set; }
+
         public bool shown { get; set; }
+
         [JsonProperty("answer")]
         public string QuestionResponse { get; set; }
+
         public QuestionProperties properties { get; set; }
+
         public QuestionOptions[] options { get; set; }
+
+        [JsonProperty("subquestions")]
         public SurveyQuestion[] sub_questions { get; set; }
 
         public bool Equals(SurveyQuestion sq)

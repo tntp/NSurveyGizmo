@@ -17,24 +17,39 @@ namespace NSurveyGizmo.Models
     public class SurveyResponse
     {
         public string id { get; set; }
+
         public string contact_id { get; set; }
+
         public string status { get; set; }
+
         public string is_test_data { get; set; }
+
         [JsonProperty("date_submitted")]
         public DateTime datesubmitted { get; set; }
+
         [JsonProperty("comments")]
         public string sResponseComment { get; set; }
+
         [JsonProperty("survey_data")]
         public List<SurveyQuestion> SurveyQuestions { get; set; } = new List<SurveyQuestion>();
+
         [JsonProperty("url_variables")]
         public List<SurveyUrl> SurveyUrls { get; set; } = new List<SurveyUrl>();
+
         public List<SurveyGeoData> data_quality { get; set; } = new List<SurveyGeoData>();
+
         public List<SurveyGeoData> SurveyGeoDatas { get; set; } = new List<SurveyGeoData>();
+
         public List<SurveyVariable> SurveyVariables { get; set; } = new List<SurveyVariable>();
+
         public List<SurveyVariableShown> SurveyVariableShowns { get; set; } = new List<SurveyVariableShown>();
+
         public List<SurveyQuestionHidden> SurveyQuestionHiddens { get; set; } = new List<SurveyQuestionHidden>();
+
         public List<SurveyQuestionOption> SurveyQuestionOptions { get; set; } = new List<SurveyQuestionOption>();
+
         public List<SurveyQuestionMulti> SurveyQuestionMulties { get; set; } = new List<SurveyQuestionMulti>();
+
         public Dictionary<int, string> AllQuestions { get; set; } = new Dictionary<int, string>();
 
         public void AddQuestion(int key, string value)

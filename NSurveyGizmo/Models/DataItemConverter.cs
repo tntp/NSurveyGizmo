@@ -1,14 +1,9 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Text.RegularExpressions;
 using Newtonsoft.Json.Linq;
-using Newtonsoft.Json.Serialization;
-using NSurveyGizmo.Models;
 
 namespace NSurveyGizmo.Models
 {
@@ -44,10 +39,8 @@ namespace NSurveyGizmo.Models
             reader.Read();
             while (reader.TokenType == JsonToken.PropertyName)
             {
-                
                 var name = reader.Value.ToString();
                 reader.Read();
-
          
                 PropertyInfo property;
                 if (oldv4SurveyGeoData.ContainsKey(name))
@@ -82,7 +75,7 @@ namespace NSurveyGizmo.Models
                 }
                 else if (oldv4SurveyGeoData.ContainsKey(name))
                 {
-                    string oldName = oldv4SurveyGeoData.FirstOrDefault(x => x.Key == name).Value;
+                    var oldName = oldv4SurveyGeoData.FirstOrDefault(x => x.Key == name).Value;
                     var geoName = oldName;
                     var sgd = new SurveyGeoData
                     {
@@ -97,14 +90,14 @@ namespace NSurveyGizmo.Models
                     var urlParams = serializer.Deserialize(reader) as JObject;
                     try
                     {
-                        Dictionary<string, object> results =
+                        var results =
                             JsonConvert.DeserializeObject<Dictionary<string, object>>(urlParams?.ToString());
                     }
                     catch(Exception e)
                     {
                         try
                         {
-                            Dictionary<string, string> results2 =
+                            var results2 =
                                 JsonConvert.DeserializeObject<Dictionary<string, string>>(urlParams?.ToString());
                         }
                         catch (Exception ef)
@@ -119,14 +112,14 @@ namespace NSurveyGizmo.Models
                     var dataQual = serializer.Deserialize(reader) as JObject;
                     try
                     {
-                        Dictionary<string, object> results =
+                        var results =
                             JsonConvert.DeserializeObject<Dictionary<string, object>>(dataQual?.ToString());
                     }
                     catch (Exception e)
                     {
                         try
                         {
-                            Dictionary<string, string> results2 =
+                            var results2 =
                                 JsonConvert.DeserializeObject<Dictionary<string, string>>(dataQual?.ToString());
                         }
                         catch (Exception ef)
@@ -140,8 +133,7 @@ namespace NSurveyGizmo.Models
                 {
                     var questionOptionAnser = new SurveyQuestionOption();
                     var questions = serializer.Deserialize(reader) as JObject;
-                    Dictionary<string, object> results =
-                        JsonConvert.DeserializeObject<Dictionary<string, object>>(questions?.ToString());
+                    var results = JsonConvert.DeserializeObject<Dictionary<string, object>>(questions?.ToString());
 
                     var qList = new List<SurveyQuestion>();
                     var oList = new List<QuestionOptions>();
@@ -149,17 +141,24 @@ namespace NSurveyGizmo.Models
 
                     foreach (var questionObject in results.Values)
                     {
-                        JObject questionJObject = JObject.Parse(questionObject.ToString());
-                        var q = new SurveyQuestion
-                        {
-                            id = (int) questionJObject["id"],
-                            _type = (string) questionJObject["base_type"],
-                            _subtype = (string) questionJObject["type"],
-                            question = (string) questionJObject["question"],
-                            section_id = (int) questionJObject["section_id"],
-                            QuestionResponse = (string) questionJObject["answer"]
+                        var questionJObject = JObject.Parse(questionObject.ToString());
+                        var q = GetSurveyQuestion(questionJObject);
 
-                        };
+                        if (questionJObject["subquestions"] != null)
+                        {
+                            var subQuestionsList =new List<SurveyQuestion>();
+                            var subQuestions = JsonConvert.DeserializeObject<Dictionary<string, object>>(questionJObject["subquestions"].ToString());
+                            foreach (var subQuestion in subQuestions.Values)
+                            {
+                                var quesObj = JObject.Parse(subQuestion.ToString());
+                                var surveyQuestion = GetSurveyQuestion(quesObj);
+                                subQuestionsList.Add(surveyQuestion);
+
+                                value.AddQuestion(surveyQuestion.id, surveyQuestion.QuestionResponse);
+                            }
+                            q.sub_questions = subQuestionsList.ToArray();
+                        }
+
                         if (questionJObject["answer_id"] != null)
                         {
                             q.answer_id = (string) questionJObject["answer_id"];
@@ -190,12 +189,11 @@ namespace NSurveyGizmo.Models
                         }
                         if (questionJObject["options"] != null)
                         {
-                            Dictionary<string, object> questionOptions =
-                                JsonConvert.DeserializeObject<Dictionary<string, object>>(questionJObject["options"]
+                            var questionOptions = JsonConvert.DeserializeObject<Dictionary<string, object>>(questionJObject["options"]
                                     .ToString());
                             foreach (var optionObject in questionOptions.Values)
                             {
-                                JObject optionJObject = JObject.Parse(optionObject.ToString());
+                                var optionJObject = JObject.Parse(optionObject.ToString());
                                 var qoptionquestion = new SurveyQuestion
                                 {
                                     id = (int)optionJObject["id"],
@@ -225,7 +223,7 @@ namespace NSurveyGizmo.Models
                                 }
                                 else if (q.shown)
                                 {
-                                    var svs = new SurveyVariableShown()
+                                    var svs = new SurveyVariableShown
                                     {
                                         Name = qoptionquestion.id + "-shown",
                                         Value = "1"//meaning true
@@ -252,7 +250,7 @@ namespace NSurveyGizmo.Models
                                     QuestionID = q.id
                                 };
                                 questionOptionAnser.QuestionResponse = soObject.QuestionResponse;
-                                var sqmObject = new SurveyQuestionMulti()
+                                var sqmObject = new SurveyQuestionMulti
                                 {
                                     OptionID = (int)optionJObject["id"],
                                     QuestionResponse = (string)optionJObject["answer"],
@@ -288,6 +286,23 @@ namespace NSurveyGizmo.Models
             return value;
         }
 
+        private static SurveyQuestion GetSurveyQuestion(JObject questionJObject)
+        {
+            var surveyQuestion= new SurveyQuestion
+            {
+                id =  (int) questionJObject["id"],
+                _type = questionJObject["base_type"]==null ? string.Empty:(string) questionJObject["base_type"],
+                _subtype = questionJObject["type"] ==null ? string.Empty:(string) questionJObject["type"],
+                question = questionJObject["question"]==null ? string.Empty:(string) questionJObject["question"],
+                QuestionResponse = questionJObject["answer"]==null ? string.Empty:(string) questionJObject["answer"]
+            };
+            if (questionJObject["section_id"] != null)
+            {
+                surveyQuestion.section_id = (int) questionJObject["section_id"];
+            }
+            return surveyQuestion;
+        }
+        
         public override bool CanWrite => false;
 
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)

@@ -55,7 +55,6 @@
     <Compile Include="ApiClient.cs" />
     <Compile Include="Models\Contact.cs" />
     <Compile Include="Models\DataItemConverterSurveyQuestion.cs" />
-    <Compile Include="Models\SurveyResponseJsonConverter.cs" />
     <Compile Include="Models\EmailMessage.cs" />
     <Compile Include="Models\LocalizableString.cs" />
     <Compile Include="Models\Result.cs" />

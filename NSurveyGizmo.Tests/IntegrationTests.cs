@@ -960,5 +960,18 @@ namespace NSurveyGizmo.Tests
             var getUpdatedList = apiClient.GetCampaignContactList(surveyId, campaign);
             Assert.IsTrue(getUpdatedList.Count > 0);
         }
+
+        [TestMethod()]
+        public void GetResponses()
+        {
+            var campaings = apiClient.GetCampaigns(3943141, true);
+
+            foreach (var surveyCampaign in campaings)
+            {
+                var contacts = apiClient.GetCampaignContactList(3943141, surveyCampaign.id);
+            }
+
+            var allResponses = apiClient.GetResponses(3943141, true);
+        }
     }
 }
