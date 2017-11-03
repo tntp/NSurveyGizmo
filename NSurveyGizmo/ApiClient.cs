@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Runtime.InteropServices.ComTypes;
 using System.Text;
+using Newtonsoft.Json;
 using NLog;
 using NSurveyGizmo.Models;
 using Polly;
@@ -535,8 +537,28 @@ namespace NSurveyGizmo
                 {
                     if (nonQuery)
                     {
-                        var nonQueryResult = ThrottledWebRequest.GetJsonObject<T>(baseUrl);
-                        data.Add(nonQueryResult);
+                        try
+                        {
+                            var nonQueryResult = ThrottledWebRequest.GetJsonObject<T>(baseUrl);
+                            data.Add(nonQueryResult);
+                        }
+                        catch (WebException e)
+                        {
+                            var resp = e.Response as HttpWebResponse;
+                            using (var sr = new StreamReader(resp.GetResponseStream()))
+                            {
+                                var result = sr.ReadToEnd();
+                                var res = JsonConvert.DeserializeObject<Result>(result);
+                                var exMsg = res.message;
+                                var ex = new WebException(exMsg, WebExceptionStatus.UnknownError);
+                                var scrubbedUrl = baseUrl
+                                    .Replace(ApiToken, placeholder)
+                                    .Replace(ApiTokenSecret, placeholder);
+                                ex.Data.Add("Url", scrubbedUrl);
+
+                                throw ex;
+                            }
+                        }
                     }
                     else
                     {

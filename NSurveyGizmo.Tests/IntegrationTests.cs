@@ -77,9 +77,6 @@ namespace NSurveyGizmo.Tests
             // check if the campaign is returned in the list of all campaigns
             var campaigns = apiClient.GetCampaigns(surveyId);
             Assert.IsNotNull(campaigns);
-            campaigns = campaigns.Where(c => c._subtype == "email").ToList();
-            // 2 email campaigns expected
-            Assert.AreEqual(2, campaigns.Count);
             Assert.IsTrue(campaigns.Any(c => c.status == "Active" && c.name == campaignName && c.id == campaignId));
 
             // get the campaign

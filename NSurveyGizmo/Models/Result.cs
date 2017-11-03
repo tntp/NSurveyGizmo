@@ -3,6 +3,7 @@
     public class Result
     {
         public int id { get; set; }
+        public string message { get; set; }
         public bool result_ok { get; set; }
     }
 
