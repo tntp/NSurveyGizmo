@@ -3,32 +3,42 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Runtime.InteropServices.ComTypes;
 using System.Text;
 using Newtonsoft.Json;
 using NLog;
 using NSurveyGizmo.Models;
 using Polly;
-using Contact = NSurveyGizmo.Models.Contact;
-using EmailMessage = NSurveyGizmo.Models.EmailMessage;
-using LocalizableString = NSurveyGizmo.Models.LocalizableString;
-using QuestionProperties = NSurveyGizmo.Models.QuestionProperties;
-using Result = NSurveyGizmo.Models.Result;
-using Survey = NSurveyGizmo.Models.Survey;
-using SurveyCampaign = NSurveyGizmo.Models.SurveyCampaign;
-using SurveyQuestion = NSurveyGizmo.Models.SurveyQuestion;
+using Contact              = NSurveyGizmo.Models.Contact;
+using EmailMessage         = NSurveyGizmo.Models.EmailMessage;
+using LocalizableString    = NSurveyGizmo.Models.LocalizableString;
+using QuestionProperties   = NSurveyGizmo.Models.QuestionProperties;
+using Result               = NSurveyGizmo.Models.Result;
+using Survey               = NSurveyGizmo.Models.Survey;
+using SurveyCampaign       = NSurveyGizmo.Models.SurveyCampaign;
+using SurveyQuestion       = NSurveyGizmo.Models.SurveyQuestion;
 using SurveyQuestionOption = NSurveyGizmo.Models.SurveyQuestionOption;
 
 namespace NSurveyGizmo
 {
     public class ApiClient
     {
-        public IThrottledWebRequest ThrottledWebRequest = new ThrottledWebRequest();
         public int? BatchSize = null;
         public string BaseServiceUrl = "https://restapi.surveygizmo.com/v5/";
         public string ApiToken { get; set; }
         public string ApiTokenSecret { get; set; }
-        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
+
+        public IThrottledWebRequest ThrottledWebRequest = new ThrottledWebRequest();
+        private readonly ILogger _logger;
+
+        public ApiClient()
+        {
+            _logger = LogManager.GetCurrentClassLogger();
+        }
+
+        public ApiClient(ILogger logger)
+        {
+            _logger = logger;
+        }
 
         #region questions
 
@@ -521,11 +531,11 @@ namespace NSurveyGizmo
                 .Handle<WebException>()
                 .Retry(totalRetries, (ex, i) =>
                 {
-                    var exception = ex as WebException;
-                    if (exception != null)
+                    if (ex is WebException exception)
                     {
-                        SetNLogContextItems(exception, currentUrl);
-                        Logger.Log(LogLevel.Error, exception, $"{nameof(WebException)} caught. Retrying {i}/{totalRetries}.");
+                        GlobalDiagnosticsContext.Set("apiUrl", currentUrl);
+                        GlobalDiagnosticsContext.Set("httpStatusCode", GetStatusCode(exception).ToString());
+                        _logger.Log(LogLevel.Error, exception, $"{nameof(WebException)} caught. Retrying {i}/{totalRetries}.");
                     }
 
                     if (i > 10) throw new Exception($"Total retries exceeded: {totalRetries}", ex);
@@ -609,29 +619,19 @@ namespace NSurveyGizmo
                     });
                 } while (page <= totalPages);
 
-                if (page > 1 && page - 1 != totalPages) Logger.Log(LogLevel.Warn, $"Only {page - 1}/{totalPages} pages retrieved!\tUrl: {BaseServiceUrl}{url}");
+                if (page > 1 && page - 1 != totalPages) _logger.Log(LogLevel.Warn, $"Only {page - 1}/{totalPages} pages retrieved!\tUrl: {BaseServiceUrl}{url}");
             }
             return data;
         }
-      
 
         private static int? GetStatusCode(WebException webException)
         {
-            if (webException.Status != WebExceptionStatus.ProtocolError) return null;
-
-            var response = webException.Response as HttpWebResponse;
-            if (response != null)
+            if (webException.Status == WebExceptionStatus.ProtocolError && webException.Response is HttpWebResponse response)
             {
-                return (int)response.StatusCode;
+                return (int) response.StatusCode;
             }
 
             return null;
-        }
-
-        private void SetNLogContextItems(WebException webException, string url)
-        {
-            GlobalDiagnosticsContext.Set("apiUrl", url);
-            GlobalDiagnosticsContext.Set("httpStatusCode", GetStatusCode(webException).ToString());
         }
     }
 }
