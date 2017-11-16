@@ -189,7 +189,6 @@ namespace NSurveyGizmo
         #endregion
 
         #region surveys
-
         public List<Survey> GetAllSurveys(bool getAllPages = true)
         {
             return GetData<Survey>("survey", getAllPages, true);
@@ -213,7 +212,6 @@ namespace NSurveyGizmo
             var results = GetData<Survey>($"survey/{id}");
             return results != null && results.Count > 0 ? results[0] : null;
         }
-
         #endregion
 
         #region campaigns
@@ -520,7 +518,6 @@ namespace NSurveyGizmo
         {
             // TODO: use async?
             const int totalRetries = 10;
-            const string placeholder = "[removed]";
 
             var data = new List<T>();
             var delimiter = url.Contains("?") ? "&" : "?";
@@ -531,14 +528,15 @@ namespace NSurveyGizmo
                 .Handle<WebException>()
                 .Retry(totalRetries, (ex, i) =>
                 {
-                    if (ex is WebException exception)
+                    var webException = ex as WebException;
+                    if (webException?.Status == WebExceptionStatus.ProtocolError &&
+                        webException.Response is HttpWebResponse response)
                     {
-                        GlobalDiagnosticsContext.Set("apiUrl", currentUrl);
-                        GlobalDiagnosticsContext.Set("httpStatusCode", GetStatusCode(exception).ToString());
-                        _logger.Log(LogLevel.Error, exception, $"{nameof(WebException)} caught. Retrying {i}/{totalRetries}.");
+                        GlobalDiagnosticsContext.Set("httpStatusCode", response.StatusCode.ToString());
                     }
+                    GlobalDiagnosticsContext.Set("apiUrl", currentUrl);
 
-                    if (i > 10) throw new Exception($"Total retries exceeded: {totalRetries}", ex);
+                    _logger.Log(LogLevel.Error, ex, $"{ex.Message} - Attempt: {i}/{totalRetries}");
                 });
 
             if (!paged)
@@ -558,13 +556,9 @@ namespace NSurveyGizmo
                             using (var sr = new StreamReader(resp.GetResponseStream()))
                             {
                                 var result = sr.ReadToEnd();
-                                var res = JsonConvert.DeserializeObject<Result>(result);
-                                var exMsg = res.message;
+                                var exMsg = JsonConvert.DeserializeObject<Result>(result).message;
                                 var ex = new WebException(exMsg, WebExceptionStatus.UnknownError);
-                                var scrubbedUrl = baseUrl
-                                    .Replace(ApiToken, placeholder)
-                                    .Replace(ApiTokenSecret, placeholder);
-                                ex.Data.Add("Url", scrubbedUrl);
+                                ex.Data.Add("Url", GetScrubbedUrl(baseUrl));
 
                                 throw ex;
                             }
@@ -577,7 +571,6 @@ namespace NSurveyGizmo
                         {
                             data.Add(queryResult.Data);
                         }
-                        
                     }
                 });
             }
@@ -603,10 +596,7 @@ namespace NSurveyGizmo
                                 ? "SurveyGizmo responded with 'result_ok' equal to false, indicating a problem with their system"
                                 : "Empty response received from SurveyGizmo";
                             var ex = new WebException(exMsg, WebExceptionStatus.UnknownError);
-                            var scrubbedUrl = pagedUrl
-                                .Replace(ApiToken, placeholder)
-                                .Replace(ApiTokenSecret, placeholder);
-                            ex.Data.Add("Url", scrubbedUrl);
+                            ex.Data.Add("Url", GetScrubbedUrl(pagedUrl));
 
                             throw ex;
                         }
@@ -624,14 +614,10 @@ namespace NSurveyGizmo
             return data;
         }
 
-        private static int? GetStatusCode(WebException webException)
+        private string GetScrubbedUrl(string url)
         {
-            if (webException.Status == WebExceptionStatus.ProtocolError && webException.Response is HttpWebResponse response)
-            {
-                return (int) response.StatusCode;
-            }
-
-            return null;
+            const string placeholder = "[removed]";
+            return url.Replace(ApiToken, placeholder).Replace(ApiTokenSecret, placeholder);
         }
     }
 }
