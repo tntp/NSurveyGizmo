@@ -534,7 +534,7 @@ namespace NSurveyGizmo
                     {
                         GlobalDiagnosticsContext.Set("httpStatusCode", response.StatusCode.ToString());
                     }
-                    GlobalDiagnosticsContext.Set("apiUrl", currentUrl);
+                    GlobalDiagnosticsContext.Set("apiUrl", GetScrubbedUrl(currentUrl));
 
                     _logger.Log(LogLevel.Error, ex, $"{ex.Message} - Attempt: {i}/{totalRetries}");
                 });
