@@ -212,6 +212,11 @@ namespace NSurveyGizmo
             var results = GetData<Survey>($"survey/{id}");
             return results != null && results.Count > 0 ? results[0] : null;
         }
+        public int CopySurvey(int copyId, string name)
+        {
+            var response = GetData<Survey>($"survey/{copyId}?_method=POST&copy=true&title={Uri.EscapeDataString(name ?? "")}");
+            return response != null && response.Count > 0 ? response[0].id : -1;
+        }
         #endregion
 
         #region campaigns

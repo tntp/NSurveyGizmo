@@ -160,7 +160,6 @@ namespace NSurveyGizmo.Tests
         [TestMethod()]
         public void Create_Survey_Test()
         {
-           
             // create survey
             var title = "Test Survey " + testStartedAt;
             var surveyId = apiClient.CreateSurvey(title);
@@ -172,6 +171,45 @@ namespace NSurveyGizmo.Tests
             Assert.AreEqual(surveyId, survey.id);
             Assert.AreEqual(title, survey.title);
             Assert.AreEqual("Launched", survey.status);
+        }
+        [TestMethod()]
+        public void Copy_Survey_Test()
+        {
+            // create survey
+            var title = "Test Survey " + testStartedAt;
+            var surveyId = apiClient.CreateSurvey(title);
+            Assert.IsTrue(surveyId > 0);
+
+            // get survey
+            var survey = apiClient.GetSurvey(surveyId);
+            Assert.IsNotNull(survey);
+            Assert.AreEqual(surveyId, survey.id);
+            Assert.AreEqual(title, survey.title);
+            Assert.AreEqual("Launched", survey.status);
+
+            // create questions
+            var firstQuestionTitle = new LocalizableString("Test survey question");
+            var secondQuestionTitle = new LocalizableString("Test survey question2");
+
+            var q1 = apiClient.CreateQuestion(surveyId, 1, "text", firstQuestionTitle, "q1Short", null);
+            var q2 = apiClient.CreateQuestion(surveyId, 1, "menu", secondQuestionTitle, "q2Short", null);
+
+            // create copy survey
+            var surveyCopyTitle = "Test Survey Copy" + testStartedAt;
+            var surveyCopyId = apiClient.CopySurvey(surveyId, surveyCopyTitle);
+            Assert.IsTrue(surveyCopyId > 0);
+
+            // get copy survey
+            var surveyCopy = apiClient.GetSurvey(surveyCopyId);
+            Assert.IsNotNull(surveyCopy);
+            Assert.AreEqual(surveyCopyId, surveyCopy.id);
+            Assert.AreEqual(surveyCopyTitle, surveyCopy.title);
+            Assert.AreEqual("Launched", surveyCopy.status);
+
+            // get copy survey questions
+            var copySurveyquestions = apiClient.GetQuestions(surveyCopyId);
+            Assert.IsNotNull(copySurveyquestions);
+            Assert.IsTrue(copySurveyquestions.Count == 3);
         }
         [TestMethod()]
         public void Create_Questions_Test()
