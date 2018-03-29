@@ -316,6 +316,8 @@ namespace NSurveyGizmo.Tests
             Assert.AreEqual(response.AllQuestions.Count, 3);
             Assert.AreEqual(response.SurveyQuestions.Count, 2);
 
+            Assert.IsTrue(String.IsNullOrEmpty(allResponses.FirstOrDefault().language));
+            
             //Assert the response
             var resp1 = response.AllQuestions.SingleOrDefault(s => s.Key == q0.id);
             var resp2 = response.AllQuestions.SingleOrDefault(s => s.Key == subQ1.id);

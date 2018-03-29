@@ -48,6 +48,9 @@ namespace NSurveyGizmo.Models
 
         public Dictionary<int, string> AllQuestions { get; set; } = new Dictionary<int, string>();
 
+        [JsonProperty("language")]
+        public String language { get; set; }
+
         public void AddQuestion(int key, string value)
         {
             if (!AllQuestions.ContainsKey(key))
