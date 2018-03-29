@@ -12,6 +12,7 @@ namespace NSurveyGizmo.Models
         public Links links { get; set; }
         public string status { get; set; }
         public DateTime created_on { get; set; }
+        public DateTime modified_on { get; set; }
 
         public bool Equals(Survey s)
         {
@@ -19,6 +20,7 @@ namespace NSurveyGizmo.Models
                 && title      == s.title
                 && status     == s.status
                 && created_on == s.created_on
+                && modified_on == s.modified_on
                 && links.Equals(s.links);
         }
     }

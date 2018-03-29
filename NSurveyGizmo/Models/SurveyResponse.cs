@@ -78,6 +78,7 @@ namespace NSurveyGizmo.Models
                    && SurveyQuestionHiddens.SequenceEqual(sr.SurveyQuestionHiddens)
                    && SurveyQuestionOptions.SequenceEqual(sr.SurveyQuestionOptions)
                    && SurveyQuestionMulties.SequenceEqual(sr.SurveyQuestionMulties)
+                   && language == sr.language
                    && AllQuestions.OrderBy(kvp => kvp.Key)
                                   .SequenceEqual(sr.AllQuestions.OrderBy(kvp => kvp.Key));
         }
